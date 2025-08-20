@@ -1,6 +1,10 @@
 dify/
+self-hosted-ai-starter-kit/
 *.tar
-
+*.exe
+*.AppxBundle
+*.msi
+*.tar.gz
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
