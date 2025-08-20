@@ -252,3 +252,82 @@ docker compose version
 - **または：バイナリを直接ダウンロードしてコピー**
 
 ご希望の方式（debパッケージ or バイナリ）やOS・アーキテクチャの詳細があればさらに具体的な手順をお伝えします。
+
+
+---
+
+
+WSL（Windows Subsystem for Linux）で**オフラインPCにgitをインストール**したい場合、  
+インターネット接続があるPCでパッケージをダウンロードし、  
+オフラインPCへファイルを持ち込んでインストールする方法が一般的です。
+
+---
+
+## 手順
+
+### 1. オンラインPCでgitパッケージをダウンロード
+
+1. **WSL（Ubuntuなど）を起動**
+2. 以下コマンドで必要なdebファイルをダウンロード  
+   （例：Ubuntu 20.04の場合）
+
+   ```sh
+   mkdir ~/git-offline
+   cd ~/git-offline
+   apt-get download git
+   ```
+
+3. **依存パッケージもダウンロード**  
+   依存関係があるため、下記コマンドが便利です。
+
+   ```sh
+   apt-get install --download-only git
+   ```
+   これで`/var/cache/apt/archives/`に必要なdebファイルが全てダウンロードされます。
+
+4. **debファイルをまとめてUSBメモリ等にコピー**
+
+   ```sh
+   cp /var/cache/apt/archives/*.deb ~/git-offline/
+   ```
+
+---
+
+### 2. オフラインPCへファイルをコピー
+
+- USBメモリや外付けHDDなどで`git-offline`フォルダごとコピーします。
+
+---
+
+### 3. オフラインPCでgitをインストール
+
+1. **WSL（Ubuntuなど）で`git-offline`フォルダに移動**
+   ```sh
+   cd ~/git-offline
+   ```
+
+2. **まとめてインストール**
+   ```sh
+   sudo dpkg -i *.deb
+   ```
+
+3. **依存エラーが出た場合**
+   ```sh
+   sudo apt-get install -f
+   ```
+   ＊依存ファイルが足りない場合は再度オンラインPCで不足分をダウンロードしてください。
+
+---
+
+## 注意
+- オフラインPCのUbuntuバージョンと、オンラインPCのバージョンを必ず揃えてください。
+- 必要な依存ファイルも全てコピーすること。
+
+---
+
+### 参考記事
+- [Ubuntu公式：パッケージのオフラインインストール](https://wiki.ubuntu.com/AptGet/Offline/JA)
+
+---
+
+ご不明点があれば、具体的なエラーや環境（WSLのバージョンやUbuntuのバージョン）を教えてください！
