@@ -27,8 +27,8 @@ def get_connection_url(db_type: str) -> str:
         port = os.getenv("SQLSERVER_PORT", "1433")
         database = os.getenv("SQLSERVER_DATABASE", "dev")
         driver = os.getenv("SQLSERVER_DRIVER", "ODBC Driver 17 for SQL Server")
-        user = os.getenv("SQLSERVER_USER", "")
-        password = os.getenv("SQLSERVER_PASSWORD", "")
+        user = os.getenv("SQLSERVER_USER", "ka")
+        password = os.getenv("SQLSERVER_PASSWORD", "0418")
         extra_params = {
             "driver": driver.replace(" ", "+"),
             "timeout": "30",  # Increase connection timeout

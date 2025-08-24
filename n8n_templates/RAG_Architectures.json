@@ -1,0 +1,1531 @@
+{
+  "name": "RAG Architectures",
+  "nodes": [
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        -1480,
+        -620
+      ],
+      "id": "0a0b29f9-5dce-481b-87b6-52928c4dd7ea",
+      "name": "When clicking ‘Test workflow’"
+    },
+    {
+      "parameters": {
+        "mode": "insert",
+        "pineconeIndex": {
+          "__rl": true,
+          "value": "sample-index",
+          "mode": "list",
+          "cachedResultName": "sample-index"
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.vectorStorePinecone",
+      "typeVersion": 1,
+      "position": [
+        -940,
+        -620
+      ],
+      "id": "b216054f-09a5-4e06-a03f-31d3c09b1e16",
+      "name": "Pinecone Vector Store",
+      "credentials": {
+        "pineconeApi": {
+          "id": "AFYcax0QPqoCfyWL",
+          "name": "PineconeApi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.embeddingsOpenAi",
+      "typeVersion": 1.2,
+      "position": [
+        -1020,
+        -440
+      ],
+      "id": "ffe329bc-1ef7-4c4d-8bbb-714ccd53e64a",
+      "name": "Embeddings OpenAI",
+      "credentials": {
+        "openAiApi": {
+          "id": "vrRxazDFUH3pr4Ac",
+          "name": "OpenAi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsonMode": "expressionData",
+        "jsonData": "={{ $('HTTP Request').item.json.data.markdown }}",
+        "options": {
+          "metadata": {
+            "metadataValues": [
+              {
+                "name": "title",
+                "value": "={{ $('HTTP Request').item.json.data.metadata.ogTitle }}"
+              },
+              {
+                "name": "description",
+                "value": "={{ $('HTTP Request').item.json.data.metadata[\"og:description\"] }}"
+              },
+              {
+                "name": "url",
+                "value": "={{ $('HTTP Request').item.json.data.metadata.sourceURL }}"
+              }
+            ]
+          }
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.documentDefaultDataLoader",
+      "typeVersion": 1,
+      "position": [
+        -800,
+        -420
+      ],
+      "id": "345af6e0-fc35-4c83-8143-a59720f5e6bd",
+      "name": "Default Data Loader"
+    },
+    {
+      "parameters": {
+        "chunkSize": 500,
+        "chunkOverlap": 50,
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.textSplitterRecursiveCharacterTextSplitter",
+      "typeVersion": 1,
+      "position": [
+        -820,
+        -220
+      ],
+      "id": "e93d14f6-c55b-44ea-8a02-28548d86d5b9",
+      "name": "Recursive Character Text Splitter"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.1,
+      "position": [
+        1100,
+        -400
+      ],
+      "id": "dc4c190b-0935-4fa6-a28b-bec66ea66f32",
+      "name": "OpenAI Chat Model",
+      "credentials": {
+        "openAiApi": {
+          "id": "vrRxazDFUH3pr4Ac",
+          "name": "OpenAi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.firecrawl.dev/v1/scrape",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "Bearer fc-8f51979800f540d984543d4856d37637"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "{\n  \"url\": \"https://www.whitehouse.gov/presidential-actions/2025/04/regulating-imports-with-a-reciprocal-tariff-to-rectify-trade-practices-that-contribute-to-large-and-persistent-annual-united-states-goods-trade-deficits/\",\n  \"formats\": [\n    \"markdown\"\n  ],\n  \"onlyMainContent\": true,\n  \"headers\": {},\n  \"waitFor\": 2,\n  \"skipTlsVerification\": false,\n  \"timeout\": 30000,\n  \"removeBase64Images\": true\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        -1200,
+        -620
+      ],
+      "id": "adc5ad5c-3194-4f88-a85e-ee133ce4a14a",
+      "name": "HTTP Request"
+    },
+    {
+      "parameters": {
+        "content": "# Naive RAG",
+        "height": 80,
+        "width": 220
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        1160,
+        -800
+      ],
+      "id": "d69a578f-b879-40e1-a970-9812ee399552",
+      "name": "Sticky Note"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.1,
+      "position": [
+        3580,
+        -440
+      ],
+      "id": "92828419-4c40-49b3-ba45-6f430d5c81c4",
+      "name": "OpenAI Chat Model1",
+      "credentials": {
+        "openAiApi": {
+          "id": "vrRxazDFUH3pr4Ac",
+          "name": "OpenAi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sessionIdType": "customKey",
+        "sessionKey": "={{ $('When chat message received').item.json.sessionId }}"
+      },
+      "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+      "typeVersion": 1.3,
+      "position": [
+        3720,
+        -420
+      ],
+      "id": "17415fdd-3b28-4576-92bf-afefd81a3437",
+      "name": "Window Buffer Memory1"
+    },
+    {
+      "parameters": {
+        "mode": "retrieve-as-tool",
+        "toolName": "knowledge_base",
+        "toolDescription": "Holds knowledge about the company",
+        "pineconeIndex": {
+          "__rl": true,
+          "value": "sample-index",
+          "mode": "list",
+          "cachedResultName": "sample-index"
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.vectorStorePinecone",
+      "typeVersion": 1,
+      "position": [
+        3840,
+        -360
+      ],
+      "id": "5231a7b8-e6ef-40d4-814a-714d92977aec",
+      "name": "Pinecone Vector Store2",
+      "credentials": {
+        "pineconeApi": {
+          "id": "AFYcax0QPqoCfyWL",
+          "name": "PineconeApi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.embeddingsOpenAi",
+      "typeVersion": 1.2,
+      "position": [
+        3860,
+        -220
+      ],
+      "id": "ae002cd9-b973-47da-b2fd-2da9fc8373ce",
+      "name": "Embeddings OpenAI2",
+      "credentials": {
+        "openAiApi": {
+          "id": "vrRxazDFUH3pr4Ac",
+          "name": "OpenAi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "content": "# Query Expansion",
+        "height": 80,
+        "width": 340
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        3360,
+        -800
+      ],
+      "id": "b48a522d-87ed-47a7-b3f6-7055289c75ea",
+      "name": "Sticky Note1"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.1,
+      "position": [
+        3280,
+        -420
+      ],
+      "id": "6323d81d-83b2-4d78-989b-631768d00998",
+      "name": "OpenAI Chat Model2",
+      "credentials": {
+        "openAiApi": {
+          "id": "vrRxazDFUH3pr4Ac",
+          "name": "OpenAi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.1,
+      "position": [
+        6020,
+        -300
+      ],
+      "id": "09d7583b-a859-4f36-b405-f7ea0f0873b5",
+      "name": "OpenAI Chat Model4",
+      "credentials": {
+        "openAiApi": {
+          "id": "vrRxazDFUH3pr4Ac",
+          "name": "OpenAi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "content": "# Multi-Query",
+        "height": 80
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        6380,
+        -740
+      ],
+      "id": "21035aeb-593c-4242-b683-f75e59192b3c",
+      "name": "Sticky Note4"
+    },
+    {
+      "parameters": {
+        "jsonSchemaExample": "[\n  {\"question\": \"Expanded query 1\"},\n  {\"question\": \"Expanded query 2\"},\n  {\"question\": \"Expanded query 3\"},\n  {\"question\": \"Expanded query 4\"}\n]"
+      },
+      "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
+      "typeVersion": 1.2,
+      "position": [
+        6200,
+        -300
+      ],
+      "id": "13a6417d-fbf7-4258-b778-10fba373fd60",
+      "name": "Structured Output Parser"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.embeddingsOpenAi",
+      "typeVersion": 1.2,
+      "position": [
+        6960,
+        -260
+      ],
+      "id": "65c19569-48b6-450b-8082-9921a7ff6b9d",
+      "name": "Embeddings OpenAI4",
+      "credentials": {
+        "openAiApi": {
+          "id": "vrRxazDFUH3pr4Ac",
+          "name": "OpenAi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.1,
+      "position": [
+        7780,
+        -580
+      ],
+      "id": "1bfa8a65-432b-4491-874a-075d07b2e370",
+      "name": "OpenAI Chat Model5",
+      "credentials": {
+        "openAiApi": {
+          "id": "vrRxazDFUH3pr4Ac",
+          "name": "OpenAi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "content": "## Load into Vector Store",
+        "height": 80,
+        "width": 310
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -1280,
+        -740
+      ],
+      "id": "c476feec-adb4-4f39-acf0-ae124b63e440",
+      "name": "Sticky Note5"
+    },
+    {
+      "parameters": {
+        "content": "# Self-Reflection",
+        "height": 80,
+        "width": 280
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        11420,
+        -800
+      ],
+      "id": "efbf3be8-d81a-461b-acab-46ae972e3a1a",
+      "name": "Sticky Note6"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.1,
+      "position": [
+        11480,
+        -440
+      ],
+      "id": "aa653fef-337e-410a-9004-ef93ab5443ea",
+      "name": "OpenAI Chat Model6",
+      "credentials": {
+        "openAiApi": {
+          "id": "vrRxazDFUH3pr4Ac",
+          "name": "OpenAi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.embeddingsOpenAi",
+      "typeVersion": 1.2,
+      "position": [
+        10720,
+        -420
+      ],
+      "id": "822a60ce-68e3-4905-a3ea-c81c8331755e",
+      "name": "Embeddings OpenAI3",
+      "credentials": {
+        "openAiApi": {
+          "id": "vrRxazDFUH3pr4Ac",
+          "name": "OpenAi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "schemaType": "manual",
+        "inputSchema": "{\n\t\"type\": \"object\",\n\t\"properties\": {\n\t\t\"documents_sufficient\": {\n\t\t\t\"type\": \"boolean\"\n\t\t}\n\t}\n}"
+      },
+      "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
+      "typeVersion": 1.2,
+      "position": [
+        11680,
+        -440
+      ],
+      "id": "0bb6d227-6036-41a4-9023-3eb37341b76b",
+      "name": "Structured Output Parser1"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.1,
+      "position": [
+        12100,
+        -340
+      ],
+      "id": "2889b4d1-db5e-401e-b4e8-56bb7d74e98c",
+      "name": "OpenAI Chat Model3",
+      "credentials": {
+        "openAiApi": {
+          "id": "vrRxazDFUH3pr4Ac",
+          "name": "OpenAi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.1,
+      "position": [
+        12680,
+        -540
+      ],
+      "id": "2707cee5-92a3-4ccb-94ea-1faaac690651",
+      "name": "OpenAI Chat Model7",
+      "credentials": {
+        "openAiApi": {
+          "id": "vrRxazDFUH3pr4Ac",
+          "name": "OpenAi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "options": {
+          "systemMessage": "=## Context\nYou are a Retrieval-Augmented Generation (RAG) assistant designed to answer questions about Donald Trump's proposed 2025 Reciprocal Tariff Policy. You use a structured internal knowledge base labeled `knowledge_base` to provide accurate, up-to-date, and relevant information on this specific policy.\n\n## Role\nYou serve as a specialized policy advisor focused solely on Donald Trump’s 2025 Reciprocal Tariff Policy. Your task is to provide clear, concise, and factual responses to user questions related to the policy’s scope, implications, and details.\n\n## Responsibilities and Goals\n- Answer user queries specifically about Trump’s 2025 Reciprocal Tariff Policy\n- Retrieve and synthesize relevant data from the `knowledge_base` tool\n- Present information in an easy-to-understand and professional manner\n- Clarify misconceptions or misinformation about the policy when applicable\n- Encourage understanding of the policy’s objectives, mechanisms, and potential impacts on trade\n\n## Other Key Information and Instructions\n- Use only the `knowledge_base` to answer questions. Do not speculate or rely on external data\n- Keep your language neutral and factual. Do not show political bias or opinion\n- Ensure the user leaves with a clearer understanding of the policy\n- If asked about other topics, gently refuse and redirect to the main topic\n\n## Topic Restrictions\n- Do not answer or acknowledge queries unrelated to the 2025 Reciprocal Tariff Policy\n- Do not provide opinions or political commentary\n- Do not speculate or create information not found in the knowledge_base\n\n## Error Handling\n- If the information cannot be found in the `knowledge_base`, respond with \"I’m sorry, I couldn't find releveant information on that specific aspect of the policy\"\n- If the user asks off-topic questions, respond with\n- I can only assist with questions about Donald Trump’s 2025 Reciprocal Tariff Policy\n\n## Final Notes\n- Maintain a friendly, professional, and neutral tone\n- Prioritize accuracy, clarity, and relevance in every response\n- Avoid engaging in speculation or unrelated dialogue"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 1.7,
+      "position": [
+        1140,
+        -620
+      ],
+      "id": "37661876-4eca-4aa4-9987-a5bf8311f9fa",
+      "name": "Naive RAG AI Agent"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $json.text }}",
+        "options": {
+          "systemMessage": "=## Context\nYou are a Retrieval-Augmented Generation (RAG) assistant designed to answer questions about Donald Trump's proposed 2025 Reciprocal Tariff Policy. You use a structured internal knowledge base labeled `knowledge_base` to provide accurate, up-to-date, and relevant information on this specific policy.\n\n## Role\nYou serve as a specialized policy advisor focused solely on Donald Trump’s 2025 Reciprocal Tariff Policy. Your task is to provide clear, concise, and factual responses to user questions related to the policy’s scope, implications, and details.\n\n## Responsibilities and Goals\n- Answer user queries specifically about Trump’s 2025 Reciprocal Tariff Policy\n- Retrieve and synthesize relevant data from the `knowledge_base` tool\n- Present information in an easy-to-understand and professional manner\n- Clarify misconceptions or misinformation about the policy when applicable\n- Encourage understanding of the policy’s objectives, mechanisms, and potential impacts on trade\n\n## Other Key Information and Instructions\n- Use only the `knowledge_base` to answer questions. Do not speculate or rely on external data\n- Keep your language neutral and factual. Do not show political bias or opinion\n- Ensure the user leaves with a clearer understanding of the policy\n- If asked about other topics, gently refuse and redirect to the main topic\n\n## Topic Restrictions\n- Do not answer or acknowledge queries unrelated to the 2025 Reciprocal Tariff Policy\n- Do not provide opinions or political commentary\n- Do not speculate or create information not found in the knowledge_base\n\n## Error Handling\n- If the information cannot be found in the `knowledge_base`, respond with \"I’m sorry, I couldn't find releveant information on that specific aspect of the policy\"\n- If the user asks off-topic questions, respond with\n- I can only assist with questions about Donald Trump’s 2025 Reciprocal Tariff Policy\n\n## Final Notes\n- Maintain a friendly, professional, and neutral tone\n- Prioritize accuracy, clarity, and relevance in every response\n- Avoid engaging in speculation or unrelated dialogue"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 1.7,
+      "position": [
+        3620,
+        -620
+      ],
+      "id": "3dc9cefc-ae2e-41b8-82c6-98de152d7e7f",
+      "name": "Expanded Query Answering AI Agent"
+    },
+    {
+      "parameters": {
+        "hasOutputParser": true,
+        "messages": {
+          "messageValues": [
+            {
+              "message": "=## Context\nYou are a standalone Multi-Query Expansion Agent. You serve as the first step in a Retrieval-Augmented Generation (RAG) system focused on Donald Trump’s 2025 Reciprocal Tariff Policy. Your role is to take a single user query and generate four unique, information-rich, and well-phrased expanded queries. These queries are used by the downstream RAG agent to retrieve relevant information from its knowledge base.\n\n## Role\nYou do not perform retrieval or answer questions. Your only task is to generate multiple high-quality variants of the input query that all stay within the scope of the original intent but explore different angles or add different clarifications.\n\n## Responsibilities and Goals\n- Interpret the user's query and generate four varied and informative expanded versions\n- Each variant should preserve the original meaning but differ in structure, keywords, or emphasis\n- Ensure that all queries stay strictly within the scope of Donald Trump’s 2025 Reciprocal Tariff Policy\n- Return the output in the specified JSON format\n\n## Output Format:\nYou must always return only the following JSON structure:\n[\n  {\"question\": \"Expanded query 1\"},\n  {\"question\": \"Expanded query 2\"},\n  {\"question\": \"Expanded query 3\"},\n  {\"question\": \"Expanded query 4\"}\n]\n\n## Other Key Instructions\n- Do not include explanations, commentary, or anything outside the JSON object\n- Do not reference sources, facts, or external tools\n- Do not include political opinions or unrelated content\n- Focus each question on clarity, retrieval value, and slight variation in wording or emphasis\n\n## Example\nOriginal Query: \"economic effects of the policy\"\nValid Output:\n[\n  {\"question\": \"What are the potential short-term and long-term economic impacts of Donald Trump’s 2025 Reciprocal Tariff Policy?\"},\n  {\"question\": \"How might Donald Trump’s 2025 Reciprocal Tariff Policy affect the U.S. economy overall?\"},\n  {\"question\": \"What are economists saying about the projected economic consequences of Trump’s 2025 Reciprocal Tariff Policy?\"},\n  {\"question\": \"In what ways could Trump’s 2025 Reciprocal Tariff Policy influence trade, jobs, and inflation in the United States?\"}\n]\n\n## Strict Boundaries and Rules\n- You must always return exactly four queries\n- Do not leave the topic of Donald Trump’s 2025 Reciprocal Tariff Policy\n- Do not answer the query or speculate\n- Keep each query concise, readable, and suitable for information retrieval\n\n## Final Notes\n- Your output feeds directly into a RAG retrieval system\n- Aim for diversity, clarity, and retrieval effectiveness\n- All queries should be fully self-contained and grammatically correct"
+            }
+          ]
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.chainLlm",
+      "typeVersion": 1.5,
+      "position": [
+        6020,
+        -500
+      ],
+      "id": "0d3c6c4b-afcd-4af5-8ff5-b00df7f31520",
+      "name": "Generate Multiple Queries",
+      "alwaysOutputData": false
+    },
+    {
+      "parameters": {
+        "messages": {
+          "messageValues": [
+            {
+              "message": "## Context\nYou are a standalone Query Expansion AI Agent. You operate as the first step in a Retrieval-Augmented Generation (RAG) system designed to answer questions about Donald Trump's 2025 Reciprocal Tariff Policy. Your role is to take user queries and expand or rephrase them to make them more complete, specific, and information-rich, so the downstream RAG agent can retrieve the most relevant data from its knowledge base.\n\n## Role\nYou do not access any external tools, databases, or documents. You do not provide answers. Your sole responsibility is to enhance the user's query in a way that makes the user's intent clearer and easier to process by the next stage of the system.\n\n## Responsibilities and Goals\n- Clarify vague or brief user queries related to Trump’s 2025 Reciprocal Tariff Policy\n- Add relevant context, terminology, and implied meaning\n- Rephrase the query into a more specific and structured form while preserving the user's intent\n- Ensure the output remains a natural, information-seeking query suitable for retrieval\n\n## Other Key Instructions\n- Do not generate answers or provide explanations\n- Do not include political opinions, assumptions, or content not clearly implied by the query\n- Keep the expanded query focused strictly on Donald Trump’s 2025 Reciprocal Tariff Policy\n- If the input query is already well-formed, you may lightly enhance it or leave it unchanged\n\n## Examples\n#### Example 1:\nOriginal Query - \"tariff changes under Trump in 2025\"\nExpanded Query - \"What changes are proposed in Donald Trump’s 2025 Reciprocal Tariff Policy compared to previous trade tariffs?\"\n\n#### Example 2:\nOriginal Query - \"impact on consumers\"\nExpanded Query - \"How is Donald Trump’s 2025 Reciprocal Tariff Policy expected to impact American consumers in terms of prices and product availability?\"\n\n#### Example 3:\nOriginal Query - \"global reaction\"\nExpanded Query - \"What has been the international response to Donald Trump’s 2025 Reciprocal Tariff Policy from key trade partners and global economic organizations?\"\n\n## Strict Boundaries and Rules\n- Do not answer questions\n- Do not reference documents or sources\n- Only output a single expanded query\n- Do not stray beyond the topic of the 2025 Reciprocal Tariff Policy\n\n## Final Notes\n- Your output will be passed directly to a retrieval system\n- Ensure clarity, specificity, and neutrality\n- Keep the output natural, readable, and focused on improving retrieval accuracy"
+            }
+          ]
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.chainLlm",
+      "typeVersion": 1.5,
+      "position": [
+        3240,
+        -620
+      ],
+      "id": "08a00c8c-89f9-4b0b-9b98-4706d57e5c21",
+      "name": "Expand Query"
+    },
+    {
+      "parameters": {
+        "mode": "load",
+        "pineconeIndex": {
+          "__rl": true,
+          "value": "sample-index",
+          "mode": "list",
+          "cachedResultName": "sample-index"
+        },
+        "prompt": "={{ $json.question }}",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.vectorStorePinecone",
+      "typeVersion": 1,
+      "position": [
+        6960,
+        -480
+      ],
+      "id": "c527e84a-27f2-4baf-ae88-3d0899195221",
+      "name": "Retrieve documents",
+      "credentials": {
+        "pineconeApi": {
+          "id": "AFYcax0QPqoCfyWL",
+          "name": "PineconeApi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sortFieldsUi": {
+          "sortField": [
+            {
+              "fieldName": "score",
+              "order": "descending"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.sort",
+      "typeVersion": 1,
+      "position": [
+        6940,
+        -760
+      ],
+      "id": "ca097a72-d0ef-411e-8a24-b7df4bede53b",
+      "name": "Sort Documents based on Relevance"
+    },
+    {
+      "parameters": {
+        "compare": "selectedFields",
+        "fieldsToCompare": "document.metadata[\"loc.lines.from\"], document.metadata[\"loc.lines.to\"]",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.removeDuplicates",
+      "typeVersion": 2,
+      "position": [
+        7160,
+        -760
+      ],
+      "id": "11df2df6-2dc3-4dd3-8020-3df487649df2",
+      "name": "Remove Duplicate Documents"
+    },
+    {
+      "parameters": {
+        "maxItems": 4
+      },
+      "type": "n8n-nodes-base.limit",
+      "typeVersion": 1,
+      "position": [
+        7380,
+        -760
+      ],
+      "id": "5491ae15-a762-4fa7-a25d-bd7a096f4078",
+      "name": "Pick Top K Documents"
+    },
+    {
+      "parameters": {
+        "fieldsToAggregate": {
+          "fieldToAggregate": [
+            {
+              "fieldToAggregate": "document.pageContent",
+              "renameField": true,
+              "outputFieldName": "documents"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.aggregate",
+      "typeVersion": 1,
+      "position": [
+        7600,
+        -760
+      ],
+      "id": "0406b698-0fd4-4886-b4d6-bb624b06885a",
+      "name": "Aggregate Documents"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $('When chat message received').item.json.chatInput }}",
+        "messages": {
+          "messageValues": [
+            {
+              "message": "=## Role\nYou are an answer generation agent in a Retrieval-Augmented Generation (RAG) system. Below, you will be given a set of retrieved documents from vector store.\n\n## Context\nThe documents you are given are related to Donald Trump’s proposed 2025 Reciprocal Tariff Policy. This policy is designed to impose matching tariffs on foreign goods based on what other countries charge the United States. It is aimed at rebalancing trade relationships, protecting U.S. industries, and responding to perceived unfair tariff structures imposed by other nations.\n\nKeep this context in mind when interpreting the question.\n\nYour task is to read the documents and use them to generate a clear, accurate, and complete answer to the user question.\n\nUse only the information found in the provided documents. Do not rely on external knowledge. If the documents contain conflicting information, mention that.\n\n## Retrieved Documents:\n{{ JSON.stringify($json.documents) }}\n\n## Instructions:\n- Answer the question using only the content from the documents\n- Be concise, neutral, and fact-based\n- If the documents don’t contain enough information to answer user question, respond with: “I’m sorry, I couldn’t find relevant information to answer your question.”"
+            }
+          ]
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.chainLlm",
+      "typeVersion": 1.5,
+      "position": [
+        7800,
+        -760
+      ],
+      "id": "34beb3f7-c073-4ff3-8d77-2adaef576829",
+      "name": "Final answer"
+    },
+    {
+      "parameters": {
+        "fieldToSplitOut": "output",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.splitOut",
+      "typeVersion": 1,
+      "position": [
+        6420,
+        -500
+      ],
+      "id": "45030c17-be88-4ac2-9621-38f34842acb8",
+      "name": "Split Out Queries"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "n8n-nodes-base.splitInBatches",
+      "typeVersion": 3,
+      "position": [
+        6680,
+        -500
+      ],
+      "id": "bca1b84d-7b33-4c37-a461-2d306cf9a669",
+      "name": "Loop Over Queries"
+    },
+    {
+      "parameters": {
+        "mode": "load",
+        "pineconeIndex": {
+          "__rl": true,
+          "value": "sample-index",
+          "mode": "list",
+          "cachedResultName": "sample-index"
+        },
+        "prompt": "={{ $json.chatInput }}",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.vectorStorePinecone",
+      "typeVersion": 1,
+      "position": [
+        10680,
+        -640
+      ],
+      "id": "6eb1c58f-dead-45e6-8d49-21c466ca5055",
+      "name": "Retrieve Documents",
+      "credentials": {
+        "pineconeApi": {
+          "id": "AFYcax0QPqoCfyWL",
+          "name": "PineconeApi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "compare": "selectedFields",
+        "fieldsToCompare": "document.metadata[\"loc.lines.from\"], document.metadata[\"loc.lines.to\"]",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.removeDuplicates",
+      "typeVersion": 2,
+      "position": [
+        11020,
+        -640
+      ],
+      "id": "9bbaafa2-7d7b-43a2-ab18-ca32f28dc042",
+      "name": "Remove Duplicate Docs"
+    },
+    {
+      "parameters": {
+        "fieldsToAggregate": {
+          "fieldToAggregate": [
+            {
+              "fieldToAggregate": "document.pageContent",
+              "renameField": true,
+              "outputFieldName": "documents"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.aggregate",
+      "typeVersion": 1,
+      "position": [
+        11220,
+        -640
+      ],
+      "id": "a620de48-811f-4804-a74f-afdbd04c716a",
+      "name": "Aggregate Docs"
+    },
+    {
+      "parameters": {
+        "mode": "raw",
+        "jsonOutput": "={\n  \"documents\": {{ JSON.stringify($json.documents) }}\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        11380,
+        -640
+      ],
+      "id": "03d2c3ec-7f67-4107-929a-c5a6fc1a0860",
+      "name": "Save Docs"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $('When chat message received').item.json.chatInput }}",
+        "hasOutputParser": true,
+        "messages": {
+          "messageValues": [
+            {
+              "message": "=## Context\nYou are the grading agent in a Self-Corrective Retrieval-Augmented Generation (RAG) pipeline. Your task is to evaluate whether the retrieved document chunks contain enough factual information to answer the user’s query accurately and directly.\n\nThese document chunks may be unstructured or partial (not full answers), as they are retrieved from a vector database. Your role is to assess whether the relevant facts exist within the documents, even if they are not clearly formatted or summarized.\n\n## Role\nYou act as a quality gatekeeper between retrieval and generation. Your job is to verify whether the information needed to answer the question can be reasonably extracted from the documents. If so, we proceed to generation; if not, the query must be rewritten and retried.\n\n## Responsibilities and Goals\n- Read the user query and the set of retrieved document chunks\n- Determine if the documents contain sufficient factual content to answer the query\n- Return your judgment as a JSON object\n\n## Other Key Information and Instructions\n- Focus on whether the relevant information is present in the documents\n- Do not expect the documents to be perfectly worded or structured\n- Do not attempt to generate an answer yourself\n- Do not use external knowledge\n- If the required facts are present — even across multiple chunks, return `true`\n- If the answer cannot be reasonably constructed from the documents, return `false`\n\n## Output Format\nReturn your judgment in the following format:\n{\n \"documents_sufficient\": true\n}\n\nor\n\n{\n \"documents_sufficient\": false\n}\n\n## Example\nUser Query: \"what is this tariff?\"\n\nRetrieved Documents:\n[\"Sec. 2. Reciprocal Tariff Policy. It is the policy of the United States to rebalance global trade flows by imposing an additional ad valorem duty on all imports from all trading partners...\", \"Moreover, these average MFN tariff rates conceal much larger discrepancies across economies in tariff rates applied to particular products. For example, the United States imposes a 2.5 percent tariff on passenger vehicle imports...\"]\n\nOutput:\n{\n \"documents_sufficient\": true\n}\n\n## Strict Boundaries and Rules\n- Be conservative and precise in your judgment\n- The documents must contain directly relevant factual content\n- Do not rely on inference or world knowledge\n- Return `false` if the answer would require guessing or speculation\n- Return `false` if user asks for latest/fresh updates\n\n## Error Handling\nIf documents are empty or clearly off-topic, return:\n{\n \"documents_sufficient\": false\n}\n\n## Final Notes\n- Your output controls the system’s next step\n- Be strict and objective\n- You are only evaluating sufficiency, not quality or style\n\nToday's date & time: {{ $now }}"
+            },
+            {
+              "type": "HumanMessagePromptTemplate",
+              "message": "=Documents:\n{{ JSON.stringify($json.documents) }}"
+            }
+          ]
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.chainLlm",
+      "typeVersion": 1.5,
+      "position": [
+        11540,
+        -640
+      ],
+      "id": "bf2df69e-9e7d-4c27-bab7-7815577a285a",
+      "name": "Query-Docs Grader"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "loose",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "27183cb7-b6b7-4970-b5ed-e23eaaa17139",
+              "leftValue": "={{ $json.output.documents_sufficient }}",
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "looseTypeValidation": true,
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        11880,
+        -640
+      ],
+      "id": "6381f607-874d-46ef-89b6-043a73ec3b8c",
+      "name": "Can proceed to response generation?"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $('When chat message received').item.json.chatInput }}",
+        "messages": {
+          "messageValues": [
+            {
+              "message": "## Context\nYou are a query rewriting agent in a Self-Corrective RAG pipeline. You are activated when the initially retrieved documents are insufficient. Your role is to rewrite the original query in a more descriptive, specific, and context-rich form to improve retrieval or search quality.\n\nYou are aware that the primary knowledge base contains authoritative and structured documents related to Donald Trump’s 2025 Reciprocal Tariff Policy, including:\n\n- Official policy texts and executive summaries\n- Economic analyses of tariff effects\n- Historical comparisons of tariff rates between countries\n- Trade statistics\n\n## Role\nYou improve the original user query by rewriting it with more detail and clarity. This refined version will be passed to a web search engine or another retrieval system.\n\n## Responsibilities and Goals\n- Interpret the user's intent and expand on it\n- Include relevant terminology, clarifications, and phrasing to maximize retrieval quality\n- Preserve the original meaning while improving specificity\n\n## Other Key Information and Instructions\n- Do not change the topic or intent\n- Do not include speculative or unrelated content\n- Assume your rewritten query will be used to search for accurate, factual content\n- Output a single rewritten query in plain text\n\n## Example\nOriginal User Query: \"impact of the tariff policy\"\nRewritten Query: \"What are the economic and consumer impacts of Donald Trump’s 2025 Reciprocal Tariff Policy on U.S. trade?\"\n\n## Strict Boundaries and Rules\n- Output only the rewritten query as plain text\n- Do not include explanations, formatting, or metadata\n- Keep it neutral, informative, and search-optimized\n\n## Error Handling\n- If the original query is too vague to rewrite meaningfully, expand it using general but relevant terms\n\n## Final Notes\n- Your rewrite will be used in downstream retrieval\n- Aim for clarity, richness, and precision"
+            }
+          ]
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.chainLlm",
+      "typeVersion": 1.5,
+      "position": [
+        12100,
+        -500
+      ],
+      "id": "b92b61b3-07c3-4337-816b-bfacbd00898b",
+      "name": "Query Expansion"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $('When chat message received').item.json.chatInput }}",
+        "messages": {
+          "messageValues": [
+            {
+              "message": "=## Context\nYou are the answer generation agent in a Self-Corrective RAG pipeline. You receive a user query and a set of documents (from either vector retrieval or web search). Your role is to generate a complete and accurate answer based solely on these documents.\n\n## Role\nYou synthesize a final answer that is factual, well-structured, and clearly tied to the provided context.\n\n## Responsibilities and Goals\n- Read the user’s question and the provided documents\n- Generate a clear, direct, and well-grounded answer\n- Use only the information in the documents\n\n## Example:\nUser Query: \"What are the goals of Trump’s 2025 tariff policy?\"\n\nDocuments:\n[\"The policy proposes reciprocal tariffs to match foreign tariffs\",\n\"It is designed to protect domestic manufacturing\"]\n\nGenerated Answer:\nTrump’s 2025 Reciprocal Tariff Policy is designed to match foreign tariffs and protect American manufacturers by ensuring fairer trade conditions.\n\n## Strict Boundaries and Rules\n- Do not invent or hallucinate details\n- Do not provide citations or mention sources\n- Keep the tone informative and neutral\n\n## Final Notes\n- Your answer is the final step in the pipeline\n- Focus on accuracy, completeness, and clarity"
+            },
+            {
+              "type": "HumanMessagePromptTemplate",
+              "message": "=Documents:\n{{ $json.results?.length ? $json.results.map(r => r.content) : $('Save Docs').item.json.documents}}"
+            }
+          ]
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.chainLlm",
+      "typeVersion": 1.5,
+      "position": [
+        12580,
+        -660
+      ],
+      "id": "0afa7569-a26b-455d-9ace-aef84d94a8b8",
+      "name": "Final Response"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.tavily.com/search",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "Bearer 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"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"query\": \"{{ $json.text }}\",\n  \"topic\": \"news\",\n  \"max_results\": 4\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        12440,
+        -500
+      ],
+      "id": "fbc80ca0-9436-4f42-b62f-1c553f76e791",
+      "name": "Search web using Tavily"
+    },
+    {
+      "parameters": {
+        "content": "",
+        "height": 980,
+        "width": 1420,
+        "color": 5
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -1740,
+        -900
+      ],
+      "id": "76b60535-c289-4e0e-a590-f9ba4b2094d5",
+      "name": "Sticky Note2"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.embeddingsOpenAi",
+      "typeVersion": 1.2,
+      "position": [
+        1440,
+        -280
+      ],
+      "id": "ccce039a-c0fd-4c76-b696-6aa8794f9663",
+      "name": "OpenAI Embeddings",
+      "credentials": {
+        "openAiApi": {
+          "id": "vrRxazDFUH3pr4Ac",
+          "name": "OpenAi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "mode": "retrieve-as-tool",
+        "toolName": "knowledge_base",
+        "toolDescription": "Holds knowledge about the company",
+        "pineconeIndex": {
+          "__rl": true,
+          "value": "sample-index",
+          "mode": "list",
+          "cachedResultName": "sample-index"
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.vectorStorePinecone",
+      "typeVersion": 1,
+      "position": [
+        1360,
+        -400
+      ],
+      "id": "451490fe-d9b6-4237-b897-5774ee540342",
+      "name": "Pinecone Vector Store1",
+      "credentials": {
+        "pineconeApi": {
+          "id": "AFYcax0QPqoCfyWL",
+          "name": "PineconeApi account"
+        }
+      }
+    },
+    {
+      "parameters": {},
+      "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+      "typeVersion": 1.3,
+      "position": [
+        1240,
+        -400
+      ],
+      "id": "229678a7-7758-476b-83d5-89e02fd6e409",
+      "name": "Window Buffer Memory"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.chatTrigger",
+      "typeVersion": 1.1,
+      "position": [
+        940,
+        -620
+      ],
+      "id": "fffebcfa-2556-4087-b6be-e80813336bb5",
+      "name": "When chat message received",
+      "webhookId": "c030e025-8cad-4015-bd8c-b4fb0a3bcf21"
+    }
+  ],
+  "pinData": {
+    "HTTP Request": [
+      {
+        "json": {
+          "success": true,
+          "data": {
+            "markdown": "[Skip to content](https://www.whitehouse.gov/presidential-actions/2025/04/regulating-imports-with-a-reciprocal-tariff-to-rectify-trade-practices-that-contribute-to-large-and-persistent-annual-united-states-goods-trade-deficits/#wp--skip-link--target)\n\n[Presidential Actions](https://www.whitehouse.gov/presidential-actions/)\n\n# Regulating Imports with a Reciprocal Tariff to Rectify Trade Practices that Contribute to Large and Persistent Annual United States Goods Trade Deficits\n\n[Executive Orders](https://www.whitehouse.gov/presidential-actions/executive-orders/)\n\nApril 2, 2025\n\nBy the authority vested in me as President by the Constitution and the laws of the United States of America, including the International Emergency Economic Powers Act (50 U.S.C. 1701 et seq.)(IEEPA), the National Emergencies Act (50 U.S.C. 1601 et seq.)(NEA), section 604 of the Trade Act of 1974, as amended (19 U.S.C. 2483), and section 301 of title 3, United States Code,\n\nI, DONALD J. TRUMP, President of the United States of America, find that underlying conditions, including a lack of reciprocity in our bilateral trade relationships, disparate tariff rates and non-tariff barriers, and U.S. trading partners’ economic policies that suppress domestic wages and consumption, as indicated by large and persistent annual U.S. goods trade deficits, constitute an unusual and extraordinary threat to the national security and economy of the United States.  That threat has its source in whole or substantial part outside the United States in the domestic economic policies of key trading partners and structural imbalances in the global trading system.  I hereby declare a national emergency with respect to this threat.\n\nOn January 20, 2025, I signed the America First Trade Policy Presidential Memorandum directing my Administration to investigate the causes of our country’s large and persistent annual trade deficits in goods, including the economic and national security implications and risks resulting from such deficits, and to undertake a review of, and identify, any unfair trade practices by other countries.  On February 13, 2025, I signed a Presidential Memorandum entitled “Reciprocal Trade and Tariffs,” that directed further review of our trading partners’ non-reciprocal trading practices, and noted the relationship between non-reciprocal practices and the trade deficit.  On April 1, 2025, I received the final results of those investigations, and I am taking action today based on those results.\n\nLarge and persistent annual U.S. goods trade deficits have led to the hollowing out of our manufacturing base; inhibited our ability to scale advanced domestic manufacturing capacity; undermined critical supply chains; and rendered our defense-industrial base dependent on foreign adversaries.  Large and persistent annual U.S. goods trade deficits are caused in substantial part by a lack of reciprocity in our bilateral trade relationships.  This situation is evidenced by disparate tariff rates and non-tariff barriers that make it harder for U.S. manufacturers to sell their products in foreign markets.  It is also evidenced by the economic policies of key U.S. trading partners insofar as they suppress domestic wages and consumption, and thereby demand for U.S. exports, while artificially increasing the competitiveness of their goods in global markets.  These conditions have given rise to the national emergency that this order is intended to abate and resolve.\n\nFor decades starting in 1934, U.S. trade policy has been organized around the principle of reciprocity.  The Congress directed the President to secure reduced reciprocal tariff rates from key trading partners first through bilateral trade agreements and later under the auspices of the global trading system.  Between 1934 and 1945, the executive branch negotiated and signed 32 bilateral reciprocal trade agreements designed to lower tariff rates on a reciprocal basis.  After 1947 through 1994, participating countries engaged in eight rounds of negotiation, which resulted in the General Agreements on Tariffs and Trade (GATT) and seven subsequent tariff reduction rounds.\n\nHowever, despite a commitment to the principle of reciprocity, the trading relationship between the United States and its trading partners has become highly unbalanced, particularly in recent years.  The post-war international economic system was based upon three incorrect assumptions:  first, that if the United States led the world in liberalizing tariff and non-tariff barriers the rest of the world would follow; second, that such liberalization would ultimately result in more economic convergence and increased domestic consumption among U.S. trading partners converging towards the share in the United States; and third, that as a result, the United States would not accrue large and persistent goods trade deficits.\n\nThis framework set in motion events, agreements, and commitments that did not result in reciprocity or generally increase domestic consumption in foreign economies relative to domestic consumption in the United States.  Those events, in turn, created large and persistent annual U.S. goods trade deficits as a feature of the global trading system.\n\nPut simply, while World Trade Organization (WTO) Members agreed to bind their tariff rates on a most-favored-nation (MFN) basis, and thereby provide their best tariff rates to all WTO Members, they did not agree to bind their tariff rates at similarly low levels or to apply tariff rates on a reciprocal basis.  Consequently, according to the WTO, the United States has among the lowest simple average MFN tariff rates in the world at 3.3 percent, while many of our key trading partners like Brazil (11.2 percent), China (7.5 percent), the European Union (EU) (5 percent), India (17 percent), and Vietnam (9.4 percent) have simple average MFN tariff rates that are significantly higher.\n\nMoreover, these average MFN tariff rates conceal much larger discrepancies across economies in tariff rates applied to particular products.  For example, the United States imposes a 2.5 percent tariff on passenger vehicle imports (with internal combustion engines), while the European Union (10 percent), India (70 percent), and China (15 percent) impose much higher duties on the same product.  For network switches and routers, the United States imposes a 0 percent tariff, but for similar products, India (10 percent) levies a higher rate.  Brazil (18 percent) and Indonesia (30 percent) impose a higher tariff on ethanol than does the United States (2.5 percent).  For rice in the husk, the U.S. MFN tariff is 2.7 percent (ad valorem equivalent), while India (80 percent), Malaysia (40 percent), and Turkey (an average of 31 percent) impose higher rates.  Apples enter the United States duty-free, but not so in Turkey (60.3 percent) and India (50 percent).\n\nSimilarly, non-tariff barriers also deprive U.S. manufacturers of reciprocal access to markets around the world.  The 2025 National Trade Estimate Report on Foreign Trade Barriers (NTE) details a great number of non-tariff barriers to U.S. exports around the world on a trading-partner by trading-partner basis.  These barriers include import barriers and licensing restrictions; customs barriers and shortcomings in trade facilitation; technical barriers to trade (e.g., unnecessarily trade restrictive standards, conformity assessment procedures, or technical regulations); sanitary and phytosanitary measures that unnecessarily restrict trade without furthering safety objectives; inadequate patent, copyright, trade secret, and trademark regimes and inadequate enforcement of intellectual property rights; discriminatory licensing requirements or regulatory standards; barriers to cross-border data flows and discriminatory practices affecting trade in digital products; investment barriers; subsidies; anticompetitive practices; discrimination in favor of domestic state-owned enterprises, and failures by governments in protecting labor and environment standards; bribery; and corruption.\n\nMoreover, non-tariff barriers include the domestic economic policies and practices of our trading partners, including currency practices and value-added taxes, and their associated market distortions, that suppress domestic consumption and boost exports to the United States.  This lack of reciprocity is apparent in the fact that the share of consumption to Gross Domestic Product (GDP) in the United States is about 68 percent, but it is much lower in others like Ireland (27 percent), Singapore (31 percent), China (39 percent), South Korea (49 percent), and Germany (50 percent).\n\nAt the same time, efforts by the United States to address these imbalances have stalled.  Trading partners have repeatedly blocked multilateral and plurilateral solutions, including in the context of new rounds of tariff negotiations and efforts to discipline non-tariff barriers.  At the same time, with the U.S. economy disproportionately open to imports, U.S. trading partners have had few incentives to provide reciprocal treatment to U.S. exports in the context of bilateral trade negotiations.\n\nThese structural asymmetries have driven the large and persistent annual U.S. goods trade deficit.  Even for countries with which the United States may enjoy an occasional bilateral trade surplus, the accumulation of tariff and non-tariff barriers on U.S. exports may make that surplus smaller than it would have been without such barriers.  Permitting these asymmetries to continue is not sustainable in today’s economic and geopolitical environment because of the effect they have on U.S. domestic production.  A nation’s ability to produce domestically is the bedrock of its national and economic security.\n\nBoth my first Administration in 2017, and the Biden Administration in 2022, recognized that increasing domestic manufacturing is critical to U.S. national security.  According to 2023 United Nations data, U.S. manufacturing output as a share of global manufacturing output was 17.4 percent, down from a peak in 2001 of 28.4 percent.\n\nOver time, the persistent decline in U.S. manufacturing output has reduced U.S. manufacturing capacity.  The need to maintain robust and resilient domestic manufacturing capacity is particularly acute in certain advanced industrial sectors like automobiles, shipbuilding, pharmaceuticals, technology products, machine tools, and basic and fabricated metals, because once competitors gain sufficient global market share in these sectors, U.S. production could be permanently weakened.  It is also critical to scale manufacturing capacity in the defense-industrial sector so that we can manufacture the defense materiel and equipment necessary to protect American interests at home and abroad.\n\nIn fact, because the United States has supplied so much military equipment to other countries, U.S. stockpiles of military goods are too low to be compatible with U.S. national defense interests.  Furthermore, U.S. defense companies must develop new, advanced manufacturing technologies across a range of critical sectors including bio-manufacturing, batteries, and microelectronics.  If the United States wishes to maintain an effective security umbrella to defend its citizens and homeland, as well as for its allies and partners, it needs to have a large upstream manufacturing and goods-producing ecosystem to manufacture these products without undue reliance on imports for key inputs.\n\nIncreased reliance on foreign producers for goods also has compromised U.S. economic security by rendering U.S. supply chains vulnerable to geopolitical disruption and supply shocks.  In recent years, the vulnerability of the U.S. economy in this respect was exposed both during the COVID-19 pandemic, when Americans had difficulty accessing essential products, as well as when the Houthi rebels later began attacking cargo ships in the Middle East.\n\nThe decline of U.S. manufacturing capacity threatens the U.S. economy in other ways, including through the loss of manufacturing jobs.  From 1997 to 2024, the United States lost around 5 million manufacturing jobs and experienced one of the largest drops in manufacturing employment in history.  Furthermore, many manufacturing job losses were concentrated in specific geographical areas.  In these areas, the loss of manufacturing jobs contributed to the decline in rates of family formation and to the rise of other social trends, like the abuse of opioids, that have imposed profound costs on the U.S. economy.\n\nThe future of American competitiveness depends on reversing these trends.  Today, manufacturing represents just 11 percent of U.S. gross domestic product, yet it accounts for 35 percent of American productivity growth and 60 percent of our exports.  Importantly, U.S. manufacturing is the main engine of innovation in the United States, responsible for 55 percent of all patents and 70 percent of all research and development (R&D) spending.  The fact that R&D expenditures by U.S. multinational enterprises in China grew at an average rate of 13.6 percent a year between 2003 and 2017, while their R&D expenditures in the United States grew by an average of just 5 percent per year during the same time period, is evidence of the strong link between manufacturing and innovation.  Furthermore, every manufacturing job spurs 7 to 12 new jobs in other related industries, helping to build and sustain our economy.\n\nJust as a nation that does not produce manufactured products cannot maintain the industrial base it needs for national security, neither can a nation long survive if it cannot produce its own food.  Presidential Policy Directive 21 of February 12, 2013 (Critical Infrastructure Security and Resilience), designates food and agriculture as a “critical infrastructure sector” because it is one of the sectors considered “so vital to the United States that \\[its\\] incapacity or destruction . . . would have a debilitating impact on security, national economic security, national public health or safety, or any combination of those matters.”  Furthermore, when I left office, the United States had a trade surplus in agricultural products, but today, that surplus has vanished.  Eviscerated by a slew of new non-tariff barriers imposed by our trading partners, it has been replaced by a projected $49 billion annual agricultural trade deficit. For these reasons, I hereby declare and order:\n\nSection1.  National Emergency.  As President of the United States, my highest duty is ensuring the national and economic security of the country and its citizens.\n\nI have declared a national emergency arising from conditions reflected in large and persistent annual U.S. goods trade deficits, which have grown by over 40 percent in the past 5 years alone, reaching $1.2 trillion in 2024.  This trade deficit reflects asymmetries in trade relationships that have contributed to the atrophy of domestic production capacity, especially that of the U.S. manufacturing and defense-industrial base.  These asymmetries also impact U.S. producers’ ability to export and, consequentially, their incentive to produce.\n\nSpecifically, such asymmetry includes not only non-reciprocal differences in tariff rates among foreign trading partners, but also extensive use of non-tariff barriers by foreign trading partners, which reduce the competitiveness of U.S. exports while artificially enhancing the competitiveness of their own goods.  These non-tariff barriers include technical barriers to trade; non-scientific sanitary and phytosanitary rules; inadequate intellectual property protections; suppressed domestic consumption (e.g., wage suppression); weak labor, environmental, and other regulatory standards and protections; and corruption.  These non-tariff barriers give rise to significant imbalances even when the United States and a trading partner have comparable tariff rates.\n\nThe cumulative effect of these imbalances has been the transfer of resources from domestic producers to foreign firms, reducing opportunities for domestic manufacturers to expand and, in turn, leading to lost manufacturing jobs, diminished manufacturing capacity, and an atrophied industrial base, including in the defense-industrial sector.  At the same time, foreign firms are better positioned to scale production, reinvest in innovation, and compete in the global economy, to the detriment of U.S. economic and national security.\n\nThe absence of sufficient domestic manufacturing capacity in certain critical and advanced industrial sectors — another outcome of the large and persistent annual U.S. goods trade deficits — also compromises U.S. economic and national security by rendering the U.S. economy less resilient to supply chain disruption.  Finally, the large, persistent annual U.S. goods trade deficits, and the concomitant loss of industrial capacity, have compromised military readiness; this vulnerability can only be redressed through swift corrective action to rebalance the flow of imports into the United States.  Such impact upon military readiness and our national security posture is especially acute with the recent rise in armed conflicts abroad.  I call upon the public and private sector to make the efforts necessary to strengthen the international economic position of the United States.\n\nSec. 2.  Reciprocal Tariff Policy.  It is the policy of the United States to rebalance global trade flows by imposing an additional ad valorem duty on all imports from all trading partners except as otherwise provided herein.  The additional ad valorem duty on all imports from all trading partners shall start at 10 percent and shortly thereafter, the additional ad valorem duty shall increase for trading partners enumerated in [Annex I](https://www.whitehouse.gov/wp-content/uploads/2025/04/Annex-I.pdf) to this order at the rates set forth in [Annex I](https://www.whitehouse.gov/wp-content/uploads/2025/04/Annex-I.pdf) to this order.  These additional ad valorem duties shall apply until such time as I determine that the underlying conditions described above are satisfied, resolved, or mitigated.\n\nSec. 3.  Implementation.  (a)  Except as otherwise provided in this order, all articles imported into the customs territory of the United States shall be, consistent with law, subject to an additional ad valorem rate of duty of 10 percent.  Such rates of duty shall apply with respect to goods entered for consumption, or withdrawn from warehouse for consumption, on or after 12:01 a.m. eastern daylight time on April 5, 2025, except that goods loaded onto a vessel at the port of loading and in transit on the final mode of transit before 12:01 a.m. eastern daylight time on April 5, 2025, and entered for consumption or withdrawn from warehouse for consumption after 12:01 a.m. eastern daylight time on April 5, 2025, shall not be subject to such additional duty.\n\nFurthermore, except as otherwise provided in this order, at 12:01 a.m. eastern daylight time on April 9, 2025, all articles from trading partners enumerated in [Annex I](https://www.whitehouse.gov/wp-content/uploads/2025/04/Annex-I.pdf) to this order imported into the customs territory of the United States shall be, consistent with law, subject to the country-specific ad valorem rates of duty specified in [Annex I](https://www.whitehouse.gov/wp-content/uploads/2025/04/Annex-I.pdf) to this order.  Such rates of duty shall apply with respect to goods entered for consumption, or withdrawn from warehouse for consumption, on or after 12:01 a.m. eastern daylight time on April 9, 2025, except that goods loaded onto a vessel at the port of loading and in transit on the final mode of transit before 12:01 a.m. eastern daylight time on April 9, 2025, and entered for consumption or withdrawn from warehouse for consumption after 12:01 a.m. eastern daylight time on April 9, 2025, shall not be subject to these country-specific ad valorem rates of duty set forth in [Annex I](https://www.whitehouse.gov/wp-content/uploads/2025/04/Annex-I.pdf) to this order.  These country-specific ad valorem rates of duty shall apply to all articles imported pursuant to the terms of all existing U.S. trade agreements, except as provided below.\n\n(b)  The following goods as set forth in [Annex II](https://www.whitehouse.gov/wp-content/uploads/2025/04/Annex-II.pdf) to this order, consistent with law, shall not be subject to the ad valorem rates of duty under this order:  (i) all articles that are encompassed by 50 U.S.C. 1702(b); (ii) all articles and derivatives of steel and aluminum subject to the duties imposed pursuant to section 232 of the Trade Expansion Act of 1962 and proclaimed in Proclamation 9704 of March 8, 2018 (Adjusting Imports of Aluminum Into the United States), as amended, Proclamation 9705 of March 8, 2018 (Adjusting Imports of Steel Into the United States), as amended, and Proclamation 9980 of January 24, 2020 (Adjusting Imports of Derivative Aluminum Articles and Derivative Steel Articles Into the United States), as amended, Proclamation 10895 of February 10, 2025 (Adjusting Imports of Aluminum Into the United States), and Proclamation 10896 of February 10, 2025 (Adjusting Imports of Steel into the United States); (iii) all automobiles and automotive parts subject to the additional duties imposed pursuant to section 232 of the Trade Expansion Act of 1962, as amended, and proclaimed in Proclamation 10908 of March 26, 2025 (Adjusting Imports of Automobiles and Automobile Parts Into the United States); (iv) other products enumerated in [Annex II](https://www.whitehouse.gov/wp-content/uploads/2025/04/Annex-II.pdf) to this order, including copper, pharmaceuticals, semiconductors, lumber articles, certain critical minerals, and energy and energy products; (v) all articles from a trading partner subject to the rates set forth in Column 2 of the Harmonized Tariff Schedule of the United States (HTSUS); and (vi) all articles that may become subject to duties pursuant to future actions under section 232 of the Trade Expansion Act of 1962.\n\n(c)  The rates of duty established by this order are in addition to any other duties, fees, taxes, exactions, or charges applicable to such imported articles, except as provided in subsections (d) and (e) of this section below.\n\n(d)  With respect to articles from Canada, I have imposed additional duties on certain goods to address a national emergency resulting from the flow of illicit drugs across our northern border pursuant to Executive Order 14193 of February 1, 2025 (Imposing Duties To Address the Flow of Illicit Drugs Across Our Northern Border), as amended by Executive Order 14197 of February 3, 2025 (Progress on the Situation at Our Northern Border), and Executive Order 14231 of March 2, 2025 (Amendment to Duties To Address the Flow of Illicit Drugs Across Our Northern Border).  With respect to articles from Mexico, I have imposed additional duties on certain goods to address a national emergency resulting from the flow of illicit drugs and illegal migration across our southern border pursuant to Executive Order 14194 of February 1, 2025 (Imposing Duties To Address the Situation at Our Southern Border), as amended by Executive Order 14198 of February 3, 2025 (Progress on the Situation at Our Southern Border), and Executive Order 14227 of March 2, 2025 (Amendment to Duties To Address the Situation at Our Southern Border).  As a result of these border emergency tariff actions, all goods of Canada or Mexico under the terms of general note 11 to the HTSUS, including any treatment set forth in subchapter XXIII of chapter 98 and subchapter XXII of chapter 99 of the HTSUS, as related to the Agreement between the United States of America, United Mexican States, and Canada (USMCA), continue to be eligible to enter the U.S. market under these preferential terms.  However, all goods of Canada or Mexico that do not qualify as originating under USMCA are presently subject to additional ad valorem duties of 25 percent, with energy or energy resources and potash imported from Canada and not qualifying as originating under USMCA presently subject to the lower additional ad valorem duty of 10 percent.\n\n(e)  Any ad valorem rate of duty on articles imported from Canada or Mexico under the terms of this order shall not apply in addition to the ad valorem rate of duty specified by the existing orders described in subsection (d) of this section.  If such orders identified in subsection (d) of this section are terminated or suspended, all items of Canada and Mexico that qualify as originating under USMCA shall not be subject to an additional ad valorem rate of duty, while articles not qualifying as originating under USMCA shall be subject to an ad valorem rate of duty of 12 percent.  However, these ad valorem rates of duty on articles imported from Canada and Mexico shall not apply to energy or energy resources, to potash, or to an article eligible for duty-free treatment under USMCA that is a part or component of an article substantially finished in the United States.\n\n(f)  More generally, the ad valorem rates of duty set forth in this order shall apply only to the non-U.S. content of a subject article, provided at least 20 percent of the value of the subject article is U.S. originating.  For the purposes of this subsection, “U.S. content” refers to the value of an article attributable to the components produced entirely, or substantially transformed in, the United States.  U.S. Customs and Border Protection (CBP), to the extent permitted by law, is authorized to require the collection of such information and documentation regarding an imported article, including with the entry filing, as is necessary to enable CBP to ascertain and verify the value of the U.S. content of the article, as well as to ascertain and verify whether an article is substantially finished in the United States.\n\n(g)  Subject articles, except those eligible for admission under “domestic status” as defined in 19 CFR 146.43, which are subject to the duty specified in section 2 of this order and are admitted into a foreign trade zone on or after 12:01 a.m. eastern daylight time on April 9, 2025, must be admitted as “privileged foreign status” as defined in 19 CFR 146.41.\n\n(h)  Duty-free de minimis treatment under 19 U.S.C. 1321(a)(2)(A)-(B) shall remain available for the articles described in subsection (a) of this section.  Duty-free de minimis treatment under 19 U.S.C. 1321(a)(2)(C) shall remain available for the articles described in subsection (a) of this section until notification by the Secretary of Commerce to the President that adequate systems are in place to fully and expeditiously process and collect duty revenue applicable pursuant to this subsection for articles otherwise eligible for de minimis treatment.  After such notification, duty-free de minimis treatment under 19 U.S.C. 1321(a)(2)(C) shall not be available for the articles described in subsection (a) of this section.\n\n(i)  The Executive Order of April 2, 2025 (Further Amendment to Duties Addressing the Synthetic Opioid Supply Chain in the People’s Republic of China as Applied to Low-Value Imports), regarding low-value imports from China is not affected by this order, and all duties and fees with respect to covered articles shall be collected as required and detailed therein.\n\n(j)  To reduce the risk of transshipment and evasion, all ad valorem rates of duty imposed by this order or any successor orders with respect to articles of China shall apply equally to articles of both the Hong Kong Special Administrative Region and the Macau Special Administrative Region.\n\n(k)  In order to establish the duty rates described in this order, the [HTSUS is modified](https://www.whitehouse.gov/wp-content/uploads/2025/04/Annex-III.pdf) as set forth in the Annexes to this order.  These modifications shall enter into effect on the dates set forth in the Annexes to this order.\n\n(l)  Unless specifically noted herein, any prior Presidential Proclamation, Executive Order, or other Presidential directive or guidance related to trade with foreign trading partners that is inconsistent with the direction in this order is hereby terminated, suspended, or modified to the extent necessary to give full effect to this order.\n\nSec. 4.  Modification Authority.  (a)  The Secretary of Commerce and the United States Trade Representative, in consultation with the Secretary of State, the Secretary of the Treasury, the Secretary of Homeland Security, the Assistant to the President for Economic Policy, the Senior Counselor for Trade and Manufacturing, and the Assistant to the President for National Security Affairs, shall recommend to me additional action, if necessary, if this action is not effective in resolving the emergency conditions described above, including the increase in the overall trade deficit or the recent expansion of non-reciprocal trade arrangements by U.S. trading partners in a manner that threatens the economic and national security interests of the United States.\n\n(b)  Should any trading partner retaliate against the United States in response to this action through import duties on U.S. exports or other measures, I may further modify the HTSUS to increase or expand in scope the duties imposed under this order to ensure the efficacy of this action.\n\n(c)  Should any trading partner take significant steps to remedy non-reciprocal trade arrangements and align sufficiently with the United States on economic and national security matters, I may further modify the HTSUS to decrease or limit in scope the duties imposed under this order.\n\n(d)  Should U.S. manufacturing capacity and output continue to worsen, I may further modify the HTSUS to increase duties under this order.\n\nSec. 5.  Implementation Authority.  The Secretary of Commerce and the United States Trade Representative, in consultation with the Secretary of State, the Secretary of the Treasury, the Secretary of Homeland Security, the Assistant to the President for Economic Policy, the Senior Counselor for Trade and Manufacturing, the Assistant to the President for National Security Affairs, and the Chair of the International Trade Commission are hereby authorized to employ all powers granted to the President by IEEPA as may be necessary to implement this order.  Each executive department and agency shall take all appropriate measures within its authority to implement this order.\n\nSec. 6.  Reporting Requirements.  The United States Trade Representative, in consultation with the Secretary of State, the Secretary of the Treasury, the Secretary of Commerce, the Secretary of Homeland Security, the Assistant to the President for Economic Policy, the Senior Counselor for Trade and Manufacturing, and the Assistant to the President for National Security Affairs, is hereby authorized to submit recurring and final reports to the Congress on the national emergency declared in this order, consistent with section 401(c) of the NEA (50 U.S.C. 1641(c)) and section 204(c) of IEEPA (50 U.S.C. 1703(c)).\n\nSec. 7.  General Provisions.  (a)  Nothing in this order shall be construed to impair or otherwise affect:\n\n(i)   the authority granted by law to an executive department, agency, or the head thereof; or\n\n(ii)  the functions of the Director of the Office of Management and Budget relating to budgetary, administrative, or legislative proposals.\n\n(b)  This order shall be implemented consistent with applicable law and subject to the availability of appropriations.\n\n(c)  This order is not intended to, and does not, create any right or benefit, substantive or procedural, enforceable at law or in equity by any party against the United States, its departments, agencies, or entities, its officers, employees, or agents, or any other person.\n\nDONALD J. TRUMP\n\nTHE WHITE HOUSE,\n\n    April 2, 2025.",
+            "metadata": {
+              "article:modified_time": "2025-04-03T12:50:15+00:00",
+              "description": "By the authority vested in me as President by the Constitution and the laws of the United States of America, including the International Emergency",
+              "twitter:site": "@whitehouse",
+              "og:image:height": "628",
+              "og:locale": "en_US",
+              "viewport": "width=device-width, initial-scale=1",
+              "og:image:type": "image/jpeg",
+              "og:site_name": "The White House",
+              "twitter:creator": "@whitehouse",
+              "robots": "index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1",
+              "og:url": "https://www.whitehouse.gov/presidential-actions/2025/04/regulating-imports-with-a-reciprocal-tariff-to-rectify-trade-practices-that-contribute-to-large-and-persistent-annual-united-states-goods-trade-deficits/",
+              "article:publisher": "https://www.facebook.com/WhiteHouse/",
+              "og:image": "https://www.whitehouse.gov/wp-content/uploads/2025/03/WH47-Presidential-Actions-Social-Share-Card.jpg",
+              "twitter:card": "summary_large_image",
+              "language": "en-US",
+              "publishedTime": "2025-04-02T21:37:45+00:00",
+              "ogImage": "https://www.whitehouse.gov/wp-content/uploads/2025/03/WH47-Presidential-Actions-Social-Share-Card.jpg",
+              "og:image:width": "1200",
+              "ogDescription": "By the authority vested in me as President by the Constitution and the laws of the United States of America, including the International Emergency",
+              "ogTitle": "Regulating Imports with a Reciprocal Tariff to Rectify Trade Practices that Contribute to Large and Persistent Annual United States Goods Trade Deficits",
+              "ogSiteName": "The White House",
+              "og:type": "article",
+              "ogUrl": "https://www.whitehouse.gov/presidential-actions/2025/04/regulating-imports-with-a-reciprocal-tariff-to-rectify-trade-practices-that-contribute-to-large-and-persistent-annual-united-states-goods-trade-deficits/",
+              "og:title": "Regulating Imports with a Reciprocal Tariff to Rectify Trade Practices that Contribute to Large and Persistent Annual United States Goods Trade Deficits",
+              "og:description": "By the authority vested in me as President by the Constitution and the laws of the United States of America, including the International Emergency",
+              "article:published_time": "2025-04-02T21:37:45+00:00",
+              "modifiedTime": "2025-04-03T12:50:15+00:00",
+              "ogLocale": "en_US",
+              "title": "Regulating Imports with a Reciprocal Tariff to Rectify Trade Practices that Contribute to Large and Persistent Annual United States Goods Trade Deficits – The White House",
+              "scrapeId": "63d027c4-546b-4f3d-a980-d6c40582e875",
+              "sourceURL": "https://www.whitehouse.gov/presidential-actions/2025/04/regulating-imports-with-a-reciprocal-tariff-to-rectify-trade-practices-that-contribute-to-large-and-persistent-annual-united-states-goods-trade-deficits/",
+              "url": "https://www.whitehouse.gov/presidential-actions/2025/04/regulating-imports-with-a-reciprocal-tariff-to-rectify-trade-practices-that-contribute-to-large-and-persistent-annual-united-states-goods-trade-deficits/",
+              "statusCode": 200
+            }
+          }
+        }
+      }
+    ]
+  },
+  "connections": {
+    "When clicking ‘Test workflow’": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Embeddings OpenAI": {
+      "ai_embedding": [
+        [
+          {
+            "node": "Pinecone Vector Store",
+            "type": "ai_embedding",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Default Data Loader": {
+      "ai_document": [
+        [
+          {
+            "node": "Pinecone Vector Store",
+            "type": "ai_document",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Recursive Character Text Splitter": {
+      "ai_textSplitter": [
+        [
+          {
+            "node": "Default Data Loader",
+            "type": "ai_textSplitter",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Naive RAG AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request": {
+      "main": [
+        [
+          {
+            "node": "Pinecone Vector Store",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model1": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Expanded Query Answering AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Window Buffer Memory1": {
+      "ai_memory": [
+        [
+          {
+            "node": "Expanded Query Answering AI Agent",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Pinecone Vector Store2": {
+      "ai_tool": [
+        [
+          {
+            "node": "Expanded Query Answering AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Embeddings OpenAI2": {
+      "ai_embedding": [
+        [
+          {
+            "node": "Pinecone Vector Store2",
+            "type": "ai_embedding",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model2": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Expand Query",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model4": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Generate Multiple Queries",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Structured Output Parser": {
+      "ai_outputParser": [
+        [
+          {
+            "node": "Generate Multiple Queries",
+            "type": "ai_outputParser",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Embeddings OpenAI4": {
+      "ai_embedding": [
+        [
+          {
+            "node": "Retrieve documents",
+            "type": "ai_embedding",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model5": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Final answer",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model6": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Query-Docs Grader",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Embeddings OpenAI3": {
+      "ai_embedding": [
+        [
+          {
+            "node": "Retrieve Documents",
+            "type": "ai_embedding",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Structured Output Parser1": {
+      "ai_outputParser": [
+        [
+          {
+            "node": "Query-Docs Grader",
+            "type": "ai_outputParser",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model3": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Query Expansion",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model7": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Final Response",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Generate Multiple Queries": {
+      "main": [
+        [
+          {
+            "node": "Split Out Queries",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Expand Query": {
+      "main": [
+        [
+          {
+            "node": "Expanded Query Answering AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Retrieve documents": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Queries",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Sort Documents based on Relevance": {
+      "main": [
+        [
+          {
+            "node": "Remove Duplicate Documents",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Remove Duplicate Documents": {
+      "main": [
+        [
+          {
+            "node": "Pick Top K Documents",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Pick Top K Documents": {
+      "main": [
+        [
+          {
+            "node": "Aggregate Documents",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Aggregate Documents": {
+      "main": [
+        [
+          {
+            "node": "Final answer",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Split Out Queries": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Queries",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Loop Over Queries": {
+      "main": [
+        [
+          {
+            "node": "Sort Documents based on Relevance",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Retrieve documents",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Retrieve Documents": {
+      "main": [
+        [
+          {
+            "node": "Remove Duplicate Docs",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Remove Duplicate Docs": {
+      "main": [
+        [
+          {
+            "node": "Aggregate Docs",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Aggregate Docs": {
+      "main": [
+        [
+          {
+            "node": "Save Docs",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Save Docs": {
+      "main": [
+        [
+          {
+            "node": "Query-Docs Grader",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Query-Docs Grader": {
+      "main": [
+        [
+          {
+            "node": "Can proceed to response generation?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Can proceed to response generation?": {
+      "main": [
+        [
+          {
+            "node": "Final Response",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Query Expansion",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Query Expansion": {
+      "main": [
+        [
+          {
+            "node": "Search web using Tavily",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Search web using Tavily": {
+      "main": [
+        [
+          {
+            "node": "Final Response",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Embeddings": {
+      "ai_embedding": [
+        [
+          {
+            "node": "Pinecone Vector Store1",
+            "type": "ai_embedding",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Pinecone Vector Store1": {
+      "ai_tool": [
+        [
+          {
+            "node": "Naive RAG AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Window Buffer Memory": {
+      "ai_memory": [
+        [
+          {
+            "node": "Naive RAG AI Agent",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "When chat message received": {
+      "main": [
+        [
+          {
+            "node": "Naive RAG AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "c5929b2b-269e-4b47-8fac-edf21aea9aef",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "f4dd5b60c05bfb4ca5603ddefa4138fe48ae0ac47126ed818b7edb8456906e5a"
+  },
+  "id": "0VureGaFwMI17VdP",
+  "tags": []
+}

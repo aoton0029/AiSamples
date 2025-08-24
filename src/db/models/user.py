@@ -1,7 +1,8 @@
 from sqlalchemy import Column, Integer, String, DateTime, Text
 from sqlalchemy.sql import func
 
-from database import db_manager
+from db.database import db_manager
+from db.database import DBType
 
 Base = db_manager.Base
 
@@ -19,7 +20,6 @@ class User(Base):
     @property
     def profile_data_column(self):
         from sqlalchemy import JSON, Text
-        from database import DBType
         
         # 現在のエンジンが何かを特定する必要がある場合の例
         # 実際の実装では異なるモデル定義や動的なカラム型定義が必要な場合もある

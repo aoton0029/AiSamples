@@ -1,0 +1,749 @@
+{
+  "name": "DB AI Agent",
+  "nodes": [
+    {
+      "parameters": {
+        "mode": "insert",
+        "pineconeIndex": {
+          "__rl": true,
+          "value": "n8n-db-agent",
+          "mode": "list",
+          "cachedResultName": "n8n-db-agent"
+        },
+        "options": {}
+      },
+      "id": "2b14d01e-eb03-4d38-a143-2a912aaa181d",
+      "name": "Pinecone Vector Store",
+      "type": "@n8n/n8n-nodes-langchain.vectorStorePinecone",
+      "position": [
+        780,
+        1480
+      ],
+      "typeVersion": 1,
+      "credentials": {
+        "pineconeApi": {
+          "id": "AFYcax0QPqoCfyWL",
+          "name": "PineconeApi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsonMode": "expressionData",
+        "jsonData": "={{ $('Execute query').item.json['Create Table'] }}",
+        "options": {
+          "metadata": {
+            "metadataValues": [
+              {
+                "name": "table_name",
+                "value": "={{ $('Execute query').item.json.Table }}"
+              }
+            ]
+          }
+        }
+      },
+      "id": "d04adc85-e89f-46da-8dc0-400086a521a9",
+      "name": "Default Data Loader",
+      "type": "@n8n/n8n-nodes-langchain.documentDefaultDataLoader",
+      "position": [
+        900,
+        1700
+      ],
+      "typeVersion": 1
+    },
+    {
+      "parameters": {
+        "chunkSize": 100000,
+        "options": {
+          "splitCode": "markdown"
+        }
+      },
+      "id": "6b2938f5-3fde-4071-b990-66ed8fd9cb68",
+      "name": "Recursive Character Text Splitter",
+      "type": "@n8n/n8n-nodes-langchain.textSplitterRecursiveCharacterTextSplitter",
+      "position": [
+        920,
+        1860
+      ],
+      "typeVersion": 1
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.embeddingsOpenAi",
+      "typeVersion": 1.2,
+      "position": [
+        740,
+        1700
+      ],
+      "id": "2e3a289f-c0eb-4861-bd88-3f1a022b6849",
+      "name": "Embeddings OpenAI",
+      "credentials": {
+        "openAiApi": {
+          "id": "vrRxazDFUH3pr4Ac",
+          "name": "OpenAi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "options": {
+          "temperature": 0.8
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.1,
+      "position": [
+        1240,
+        760
+      ],
+      "id": "daba24a4-8ee1-4152-837d-b85507d54883",
+      "name": "OpenAI Chat Model3",
+      "credentials": {
+        "openAiApi": {
+          "id": "vrRxazDFUH3pr4Ac",
+          "name": "OpenAi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "{{ $json.text }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.mySql",
+      "typeVersion": 2.4,
+      "position": [
+        1240,
+        200
+      ],
+      "id": "818be013-88d6-4834-8c51-4f7a76d51154",
+      "name": "Execute SQL query",
+      "alwaysOutputData": true,
+      "credentials": {
+        "mySql": {
+          "id": "Anx1eDxcDTUuJ1fV",
+          "name": "MySQL account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=-------------------------\nUser question: {{ $('When chat message received').item.json.chatInput }}\n\nAI Response: {{ $('Fix error & query enhancement')?.item?.json?.text }}",
+        "messages": {
+          "messageValues": [
+            {
+              "message": "You are a helpful assistant responsible for addressing user concerns that fall outside the scope of database queries. Your goal is to keep the conversation on track while maintaining a positive and engaging tone.\n\n## Responsibilities and Goals\n- Respond to any non-database-related queries in a friendly and professional manner.\n- Gently remind users that this chat is meant for querying the database.\n- Encourage users to ask questions specifically related to retrieving data from the database.\n\n## Other Key Information and Instructions\n- Always be polite, friendly, and supportive.\n- Do not attempt to generate MySQL queries or correct errors—redirect users to the appropriate agents.\n- If users ask general questions unrelated to the database, respond with a kind message and guide them back to the purpose of this chat.\n\n## Examples\n\n### User: *\"Can you help me with Python programming?\"*\n**Response:**\n*\"I appreciate your curiosity! However, this chat is specifically for interacting with the database. If you need information from the database, feel free to ask!\"*\n\n### User: *\"How is the weather today?\"*\n**Response:**\n*\"Great question! However, this chat is designed to help retrieve data from the database. Let me know what database query you need!\"*\n\n### User: *\"Who won the football match yesterday?\"*\n**Response:**\n*\"I'm here to assist with database queries! If you're looking for specific data from the database, I'd be happy to help!\"*\n\n## Handling Edge Cases\n- **Repeated Off-Topic Questions:** Politely redirect the user multiple times. If they persist, gently remind them of the chat’s purpose.\n- **Confusion About the Chat’s Function:** If a user is unsure about what they can ask, provide an example like:\n *\"This chat helps retrieve information from a database. For example, you can ask: 'Show me all actors with the last name Smith'.\"*\n\n## Strict Boundaries and Rules\n- **Stay Friendly and Helpful:** Always maintain a warm and professional tone.\n- **No Technical Assistance Beyond SQL Queries:** Do not assist with programming, troubleshooting, or general tech advice.\n- **No Engagement in Unrelated Topics:** If the question is outside the chat’s purpose, kindly redirect.\n- **Keep Responses Brief and Encouraging:** Do not provide long explanations—redirect users efficiently.\n\n## Final Notes\n- Ensure the user feels heard and understood.\n- Guide the conversation back to database queries without being dismissive.\n- Keep interactions engaging and professional at all times."
+            }
+          ]
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.chainLlm",
+      "typeVersion": 1.5,
+      "position": [
+        1220,
+        560
+      ],
+      "id": "7993bd52-2258-47ff-bf44-b474429f17c7",
+      "name": "Friendly conversation"
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "SELECT CONCAT('SHOW CREATE TABLE `', TABLE_NAME, '`;') AS queries\nFROM information_schema.tables\nWHERE table_schema = DATABASE()\nAND TABLE_TYPE = 'BASE TABLE';",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.mySql",
+      "typeVersion": 2.4,
+      "position": [
+        -40,
+        1460
+      ],
+      "id": "8e86b979-f2e9-4b53-82ac-ec26f71cbcce",
+      "name": "Get all tables with executable query",
+      "credentials": {
+        "mySql": {
+          "id": "Anx1eDxcDTUuJ1fV",
+          "name": "MySQL account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "options": {
+          "reset": false
+        }
+      },
+      "id": "4262a0d3-cca0-43fa-a18c-cb036a18cde7",
+      "name": "Loop Over executable queries",
+      "type": "n8n-nodes-base.splitInBatches",
+      "position": [
+        180,
+        1460
+      ],
+      "typeVersion": 3
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "{{ $json.queries }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.mySql",
+      "typeVersion": 2.4,
+      "position": [
+        480,
+        1480
+      ],
+      "id": "919fd754-441b-4872-a467-98eb4410afd2",
+      "name": "Execute query",
+      "credentials": {
+        "mySql": {
+          "id": "Anx1eDxcDTUuJ1fV",
+          "name": "MySQL account"
+        }
+      }
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        -260,
+        1460
+      ],
+      "id": "e8cc81f3-477e-4075-b232-60f4dd27679a",
+      "name": "When clicking ‘Upsert data into vector DB’"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": false,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "f8cfa5f1-7dc1-49b3-ab27-1e36fec90aa8",
+              "leftValue": "={{ $('Fix error & query enhancement')?.item?.json?.values()[0] ?? '' }}",
+              "rightValue": "SELECT",
+              "operator": {
+                "type": "string",
+                "operation": "startsWith"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {
+          "ignoreCase": true
+        }
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        960,
+        420
+      ],
+      "id": "940c7a40-902a-4db2-ac4d-0e792e67ecc2",
+      "name": "Is query valid and executable?"
+    },
+    {
+      "parameters": {
+        "content": "## Insert DB schema into Pinecone Vector DB\n\n- Loop through each table schema and insert vectors one-by-one.\n- By inserting them individually, we can ensure that each chunk contains the complete schema of a single table",
+        "height": 320
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -560,
+        1340
+      ],
+      "id": "f58f71bc-de80-4ee4-8c4c-54c2ae7c39cc",
+      "name": "Sticky Note"
+    },
+    {
+      "parameters": {
+        "content": "## Chat with Your Database\n\n- Ask questions naturally and get results from database.\n- AI agent uses Pinecone vector search tool to fetch table schemas relevant to user question and forms the initial query\n- Next, the query is passed through checks and enhancement. Making sure it's valid & optimized\n- If it's valid, then it's executed and summarized response is returned to user\n- Otherwise, an appropriate fallback message is returned.",
+        "height": 440
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -720,
+        220
+      ],
+      "id": "684d1637-61e8-4652-8f2f-791538db825e",
+      "name": "Sticky Note1"
+    },
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {}
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        -280,
+        1720
+      ],
+      "id": "615d5dde-c95f-46eb-95ca-88439c59d380",
+      "name": "Schedule Trigger"
+    },
+    {
+      "parameters": {},
+      "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+      "typeVersion": 1.3,
+      "position": [
+        -80,
+        640
+      ],
+      "id": "5608ed36-7dce-49a1-a0bc-43970f2a1bbd",
+      "name": "Window Buffer Memory"
+    },
+    {
+      "parameters": {
+        "options": {
+          "temperature": 0.4
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatAnthropic",
+      "typeVersion": 1.2,
+      "position": [
+        540,
+        640
+      ],
+      "id": "6e54d059-5922-4089-8d9a-e9994380c2d7",
+      "name": "Anthropic Chat Model1",
+      "credentials": {
+        "anthropicApi": {
+          "id": "POMPqmyN9oJb9uuN",
+          "name": "Anthropic account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "options": {
+          "temperature": 0.5
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatAnthropic",
+      "typeVersion": 1.2,
+      "position": [
+        -260,
+        640
+      ],
+      "id": "49364d5e-45ab-415e-beb8-38d88fe9f505",
+      "name": "Anthropic Chat Model",
+      "credentials": {
+        "anthropicApi": {
+          "id": "POMPqmyN9oJb9uuN",
+          "name": "Anthropic account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=Here is the query:\n\n{{ $json.output }}\n",
+        "messages": {
+          "messageValues": [
+            {
+              "message": "You are an expert SQL query validator and optimizer. Your job is to analyze, correct, and enhance MySQL queries while maintaining their intended functionality.\n\n## Responsibilities and Goals\n- If the query does not contain a valid SQL statement, return an **empty string** \n- Validate SQL queries for correctness and compatibility with the database schema.\n- Optimize queries for performance, ensuring efficient use of indexes and joins.\n- Fix syntax errors or logical mistakes in the generated queries.\n- Improve query readability while maintaining functionality.\n\n## Other Key Information and Instructions\n- No Data Manipulation Queries: Do not modify queries to include `INSERT`, `UPDATE`, `DELETE`, or any other query that changes data. Only `SELECT` queries are allowed.\n- Ensure queries do not introduce performance bottlenecks (e.g., unnecessary full table scans).\n- Use indexed columns in `WHERE`, `JOIN`, and `ORDER BY` clauses whenever possible.\n- Remove redundant joins, conditions, or columns that do not contribute to query results.\n\n## Examples\n\n### Input Query (Incorrect)\nSELECT * FROM actor WHERE lastname = 'Smith';\n### Action\nIdentify that lastname does not exist; correct it to last_name. Remove SELECT * and replace it with specific columns for better performance.\n### Optimized Output\nSELECT actor_id, first_name, last_name\nFROM actor\nWHERE last_name = 'Smith';\n\n### Input Query (Suboptimal)\nSELECT * FROM film WHERE title LIKE '%action%';\n### Action\nIdentify that title has an index, but % at the beginning prevents index use. Modify the query to make better use of indexing when applicable.\n### Optimized output\nSELECT film_id, title\nFROM film\nWHERE title LIKE 'action%';\n\n### Input Query(Inefficient join)\nSELECT film.film_id, film.title, category.name\nFROM film, category, film_category\nWHERE film.film_id = film_category.film_id\nAND film_category.category_id = category.category_id\nAND category.name = 'Comedy';\n### Action\nConvert outdated implicit joins to explicit JOIN syntax. Ensure that table aliases improve readability.\n### Optimized Output\nSELECT f.film_id, f.title, c.name AS category\nFROM film f\nJOIN film_category fc ON f.film_id = fc.film_id\nJOIN category c ON fc.category_id = c.category_id\nWHERE c.name = 'Comedy';\n\n### Input Query(Irrelevant/ Invalid SQL statement)\nTell me about the latest football news\n### Output\n(empty string)\n\n## Strict Boundaries and Rules\n- The output must contain only query. Do not include any other information\n- Response Length: Keep responses concise while ensuring correctness.\n- Topic Restriction: Do not answer or acknowledge any non-SQL-related queries.\n- No Engagement in Unrelated Topics: Focus solely on query validation and optimization.\n- No Speculation: If schema information is unclear, explicitly request more details instead of assuming.\n\n## Final Notes\n- Ensure accuracy in query validation and optimization.\n- Follow MySQL best practices to ensure efficient and correct query execution."
+            }
+          ]
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.chainLlm",
+      "typeVersion": 1.5,
+      "position": [
+        440,
+        420
+      ],
+      "id": "f86678a9-4ecb-4687-ba91-d51dac2a08e8",
+      "name": "Fix error & query enhancement"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.embeddingsOpenAi",
+      "typeVersion": 1.2,
+      "position": [
+        60,
+        780
+      ],
+      "id": "bc1eb03c-5887-4475-a639-530475a817e6",
+      "name": "Embeddings OpenAI1",
+      "credentials": {
+        "openAiApi": {
+          "id": "vrRxazDFUH3pr4Ac",
+          "name": "OpenAi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "mode": "retrieve-as-tool",
+        "toolName": "retrieve_database_schema",
+        "toolDescription": "Responsible for retrieving database schema",
+        "pineconeIndex": {
+          "__rl": true,
+          "value": "n8n-db-agent",
+          "mode": "list",
+          "cachedResultName": "n8n-db-agent"
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.vectorStorePinecone",
+      "typeVersion": 1,
+      "position": [
+        60,
+        620
+      ],
+      "id": "d0943f5b-7031-4c2c-9f4e-72e3d48373b3",
+      "name": "Pinecone Vector Store1",
+      "credentials": {
+        "pineconeApi": {
+          "id": "AFYcax0QPqoCfyWL",
+          "name": "PineconeApi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $json.chatInput.trim() }}\n\nCurrent date & time: {{ new Date().toString() }}",
+        "options": {
+          "systemMessage": "You are an expert SQL query generator that accurately converts natural language requests into MySQL queries using real-time schema information from the **Sakila** database.\n\nThe **Sakila database** is a sample MySQL database that models a DVD rental store. It includes tables related to films, actors, customers, rentals, payments, staff, and more.\n\n## Responsibilities and Goals\n- Convert natural language inputs into syntactically and logically correct MySQL queries.\n- Retrieve the database schema using `retrieve_database_schema` before generating queries.\n- Ensure queries match actual table and column names from the retrieved schema.\n- Avoid assumptions; ask for clarification if necessary.\n- Use standard MySQL syntax, ensuring compatibility across versions.\n\n## Key Information and Instructions\n- Queries should be safe, optimized, and free from SQL injection vulnerabilities. Do not include comments\n- Use `LIMIT` for potentially large result sets unless explicitly stated otherwise. Default to 10\n- Ensure the correct use of `JOIN`, `GROUP BY`, `ORDER BY`, and indexes when applicable.\n- Prefer prepared statements or parameterized queries when necessary.\n- No Data Manipulation Queries: Do not generate `INSERT`, `UPDATE`, `DELETE`, or any other query that modifies the database. Only `SELECT` queries are allowed.\n\n## When to Use `retrieve_database_schema` tool\n\n- Use the tool only when\n - The question explicitly asks for database-related information\n - Example: What are the columns in the rental table\n - Example: Find all customers who rented a film in the last month\n - The query requires knowledge of table structures or column names\n - Example: Get a list of films along with their rental prices\n - Example: Retrieve all staff members and their assigned store locations\n\n- Do not use the tool if\n - The question is unrelated to the Sakila database\n - Example: What is the capital of France\n - Example: How does photosynthesis work\n - Example: Who won the FIFA World Cup in 2018\n - Example: How do I cook pasta properly\n - Example: What are the benefits of meditation\n - Example: Explain Einstein’s theory of relativity\n\n## Examples\n### Input 1\nGet all actors whose last name is Smith.\n### Output 1\nSELECT actor_id, first_name, last_name \nFROM actor \nWHERE last_name = 'Smith';\n\n### Input 2\nList all films in the \"Action\" category.\n### Output 2\nSELECT f.film_id, f.title, c.name AS category \nFROM film f\nJOIN film_category fc ON f.film_id = fc.film_id\nJOIN category c ON fc.category_id = c.category_id\nWHERE c.name = 'Action';\n\n### Input 3\nFind the total number of films released in 2020.\n### Output 3\nSELECT COUNT(*) AS total_films \nFROM film \nWHERE release_year = 2020;\n\n### Input 4\nGet all actors who starred in the film \"Inception\".\n### Output 4\nSELECT a.actor_id, a.first_name, a.last_name \nFROM actor a\nJOIN film_actor fa ON a.actor_id = fa.actor_id\nJOIN film f ON fa.film_id = f.film_id\nWHERE f.title = 'Inception';\n\n### Input 5 (Irrelevant question)\nHow to make blueberry cheesecake?\n### Output 5\n(empty string)\n\n## Strict Boundaries and Rules\n- Always use `retrieve_database_schema before` generating any query.\n- The output must contain only query. Do not include any other information\n- Response Length: Queries should be precise and optimized, with brief comments where necessary.\n- Topic Restriction: Do not answer or acknowledge any non-SQL-related queries.\n- No Engagement in Unrelated Topics: Maintain focus on SQL query generation only.\n- No Speculation: If table names or fields are unknown, explicitly state that you do not know.\n\n## Final notes\n- Maintain a friendly, professional, and neutral tone.\n- Ensure accuracy in query generation.\n- Follow MySQL best practices for performance and security."
+        }
+      },
+      "id": "fb1df6b7-de18-45d8-9f27-7d87ff3a4b92",
+      "name": "AI Agent",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "position": [
+        -100,
+        420
+      ],
+      "typeVersion": 1.7
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "id": "be2ca109-3522-4cfe-8b70-532c2d2ed613",
+      "name": "When chat message received",
+      "type": "@n8n/n8n-nodes-langchain.chatTrigger",
+      "position": [
+        -400,
+        420
+      ],
+      "webhookId": "cf1de04f-3e38-426c-89f0-3bdb110a5dcf",
+      "typeVersion": 1.1
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=user question: \"{{ $('When chat message received').item.json.chatInput }}\"\n\nresponse: {{ JSON.stringify($('Execute SQL query').item.json) }}",
+        "messages": {
+          "messageValues": [
+            {
+              "message": "You are an intelligent summarization assistant. Your job is to take a detailed question and response pair and condense them into a brief easy to understand summary while preserving the key information.\n\n## Responsibilities and Goals\n- Extract the most relevant details from the original response\n- Rephrase and shorten responses while maintaining clarity and accuracy\n- Ensure summaries are easy to read and understand\n- Remove any redundant or excessive information\n\n## Other Key Information and Instructions\n- Keep summaries clear concise and well structured\n- Focus on delivering the most important points from the response\n- Do not introduce new information only summarize what was provided\n- Avoid unnecessary technical jargon unless essential to understanding the answer\n\n## Examples\n\n### User Question What are the details of the film Inception\n**Original Response**\nThe film Inception was released in 2010 It is a science fiction thriller directed by Christopher Nolan The movie stars Leonardo DiCaprio Joseph Gordon Levitt Ellen Page and Tom Hardy The plot revolves around a skilled thief who enters peoples dreams to steal secrets The movie has a PG13 rating and features special effects psychological twists and a complex narrative structure\n\n**Summarized Response**\nInception 2010 is a sci fi thriller directed by Christopher Nolan starring Leonardo DiCaprio It follows a thief who steals secrets from dreams\n\n### User Question List all actors with the last name Smith\n**Original Response**\nThe database contains three actors with the last name Smith John Smith Anna Smith and Robert Smith\n\n**Summarized Response**\nActors with the last name Smith John Anna and Robert\n\n## Strict Boundaries and Rules\n- Summaries must be brief and to the point\n- Do not add modify or remove key factual information\n- Do not engage in conversations outside of summarization tasks\n- Do not interpret ambiguous responses only summarize what is given\n- Keep responses in a neutral and professional tone\n\n## Final Notes\n- Ensure summaries are accurate and retain essential details\n- Keep language simple and easy to understand\n- Maintain a professional friendly and neutral tone"
+            }
+          ]
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.chainLlm",
+      "typeVersion": 1.5,
+      "position": [
+        1540,
+        200
+      ],
+      "id": "b4adc53f-4849-4b9d-b4d7-dccc0cabe7b8",
+      "name": "Summarize"
+    },
+    {
+      "parameters": {
+        "options": {
+          "temperature": 0.7
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.1,
+      "position": [
+        1540,
+        360
+      ],
+      "id": "d642ad29-f342-4ec3-b2a6-288af3151937",
+      "name": "OpenAI Chat Model2",
+      "credentials": {
+        "openAiApi": {
+          "id": "vrRxazDFUH3pr4Ac",
+          "name": "OpenAi account"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Default Data Loader": {
+      "ai_document": [
+        [
+          {
+            "node": "Pinecone Vector Store",
+            "type": "ai_document",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Pinecone Vector Store": {
+      "main": [
+        [
+          {
+            "node": "Loop Over executable queries",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Recursive Character Text Splitter": {
+      "ai_textSplitter": [
+        [
+          {
+            "node": "Default Data Loader",
+            "type": "ai_textSplitter",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Embeddings OpenAI": {
+      "ai_embedding": [
+        [
+          {
+            "node": "Pinecone Vector Store",
+            "type": "ai_embedding",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model3": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Friendly conversation",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Execute SQL query": {
+      "main": [
+        [
+          {
+            "node": "Summarize",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get all tables with executable query": {
+      "main": [
+        [
+          {
+            "node": "Loop Over executable queries",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Loop Over executable queries": {
+      "main": [
+        [],
+        [
+          {
+            "node": "Execute query",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Execute query": {
+      "main": [
+        [
+          {
+            "node": "Pinecone Vector Store",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "When clicking ‘Upsert data into vector DB’": {
+      "main": [
+        [
+          {
+            "node": "Get all tables with executable query",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Is query valid and executable?": {
+      "main": [
+        [
+          {
+            "node": "Execute SQL query",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Friendly conversation",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Schedule Trigger": {
+      "main": [
+        [
+          {
+            "node": "Get all tables with executable query",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Anthropic Chat Model1": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Fix error & query enhancement",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Fix error & query enhancement": {
+      "main": [
+        [
+          {
+            "node": "Is query valid and executable?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Embeddings OpenAI1": {
+      "ai_embedding": [
+        [
+          {
+            "node": "Pinecone Vector Store1",
+            "type": "ai_embedding",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Window Buffer Memory": {
+      "ai_memory": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Anthropic Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent": {
+      "main": [
+        [
+          {
+            "node": "Fix error & query enhancement",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Pinecone Vector Store1": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "When chat message received": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model2": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Summarize",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "e47ab872-8d21-4144-bc52-4dec1939970f",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "f4dd5b60c05bfb4ca5603ddefa4138fe48ae0ac47126ed818b7edb8456906e5a"
+  },
+  "id": "ez4wXKr8zH9KwJhj",
+  "tags": []
+}

@@ -1,0 +1,329 @@
+{
+  "name": "Rate limit demo",
+  "nodes": [
+    {
+      "parameters": {
+        "updates": [
+          "message"
+        ],
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.telegramTrigger",
+      "typeVersion": 1.1,
+      "position": [
+        20,
+        0
+      ],
+      "id": "0ec67a03-be9e-4686-a8e3-1262fced71d6",
+      "name": "Telegram Trigger",
+      "webhookId": "c11bbf87-64e7-4426-9eed-b09e2d7bf794",
+      "credentials": {
+        "telegramApi": {
+          "id": "kW1gkkCZLixO3Ot0",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "chatId": "={{ $('Telegram Trigger').item.json.message.chat.id }}",
+        "text": "={{ $json.output }}",
+        "additionalFields": {
+          "appendAttribution": false
+        }
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        1740,
+        -280
+      ],
+      "id": "45f96f6a-afab-4148-81b7-6c75db72c9ee",
+      "name": "Telegram",
+      "webhookId": "7f00babe-5f8d-43bb-9925-145f560046da",
+      "credentials": {
+        "telegramApi": {
+          "id": "kW1gkkCZLixO3Ot0",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "agent": "conversationalAgent",
+        "promptType": "define",
+        "text": "={{ $('Telegram Trigger').item.json.message.text }}",
+        "options": {
+          "systemMessage": "You are a friendly assistant helping users with their questions."
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 1.7,
+      "position": [
+        1420,
+        -280
+      ],
+      "id": "02301d45-1a4c-435c-9ef6-33862042e8ce",
+      "name": "AI Agent"
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gpt-4o-mini"
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.2,
+      "position": [
+        1440,
+        -120
+      ],
+      "id": "4e069b03-0109-4336-a7b4-286f856c221e",
+      "name": "OpenAI Chat Model",
+      "credentials": {
+        "openAiApi": {
+          "id": "rzktJ7VtXs7v2V7H",
+          "name": "OpenAi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "write",
+        "fileName": "redis_error.log",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.readWriteFile",
+      "typeVersion": 1,
+      "position": [
+        720,
+        260
+      ],
+      "id": "ee7901a4-8fad-4af9-8fb3-ce2d6601e920",
+      "name": "Log error"
+    },
+    {
+      "parameters": {
+        "operation": "incr",
+        "key": "={{ $json.uid }}",
+        "expire": true,
+        "ttl": "={{ +$json.duration_in_seconds }}"
+      },
+      "type": "n8n-nodes-base.redis",
+      "typeVersion": 1,
+      "position": [
+        480,
+        0
+      ],
+      "id": "2780e832-bb8b-4bd3-861f-22c88881901f",
+      "name": "Redis count user messages",
+      "notesInFlow": false,
+      "alwaysOutputData": false,
+      "executeOnce": false,
+      "retryOnFail": true,
+      "credentials": {
+        "redis": {
+          "id": "N7qc7CC9oFYRx17F",
+          "name": "Redis account"
+        }
+      },
+      "onError": "continueErrorOutput"
+    },
+    {
+      "parameters": {
+        "chatId": "={{ $('Telegram Trigger').item.json.message.chat.id }}",
+        "text": "={{ $('Rate limit variables').item.json.error_message }}",
+        "additionalFields": {
+          "appendAttribution": false
+        }
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        880,
+        60
+      ],
+      "id": "8be9bb7f-2996-46c8-804c-d1b96cf59475",
+      "name": "Quota Exceeded Error",
+      "webhookId": "46bfb44b-a813-41fb-852b-b9cfc6c29368",
+      "credentials": {
+        "telegramApi": {
+          "id": "kW1gkkCZLixO3Ot0",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "b6a02f28-3d00-460d-9d27-ee44f70d917f",
+              "leftValue": "={{ $json['888732794'] }}",
+              "rightValue": "={{ +$('Rate limit variables').item.json.message_limit_per_duration }}",
+              "operator": {
+                "type": "number",
+                "operation": "lte"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        700,
+        -100
+      ],
+      "id": "d7c9fa87-0002-49db-9e1f-aa893bb9faac",
+      "name": "if count under message limit?",
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "mode": "raw",
+        "jsonOutput": "={\n  \"uid\": \"{{ $json.message.chat.id }}\",\n  \"duration_in_seconds\": \"60\",\n  \"message_limit_per_duration\": \"2\",\n  \"error_message\": \"⚠️ Too many requests! Try again shortly\"\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        300,
+        0
+      ],
+      "id": "1d361f43-96f4-42c4-ba1b-43a371834138",
+      "name": "Rate limit variables"
+    },
+    {
+      "parameters": {
+        "content": "# This is the core rate limiting nodes setup",
+        "height": 760,
+        "width": 980
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        220,
+        -340
+      ],
+      "id": "d9bc69a9-ed4b-44c8-95ff-437289366314",
+      "name": "Sticky Note"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Telegram Trigger": {
+      "main": [
+        [
+          {
+            "node": "Rate limit variables",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent": {
+      "main": [
+        [
+          {
+            "node": "Telegram",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Log error": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Redis count user messages": {
+      "main": [
+        [
+          {
+            "node": "if count under message limit?",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Log error",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "if count under message limit?": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Quota Exceeded Error",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Rate limit variables": {
+      "main": [
+        [
+          {
+            "node": "Redis count user messages",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "b3b88672-3301-4816-9614-d7f6c3871857",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "771451b85237bca244df34519582761796e7e27768a378d511562d69c56e9ec3"
+  },
+  "id": "09ny38fSk84i5HTF",
+  "tags": []
+}
