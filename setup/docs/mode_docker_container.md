@@ -1,0 +1,1 @@
+docker save -o image1.tar イメージ名1:タグ
