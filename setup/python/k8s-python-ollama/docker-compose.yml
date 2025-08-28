@@ -1,0 +1,21 @@
+version: '3.8'
+
+services:
+  fastapi:
+    build:
+      context: ./src
+      dockerfile: Dockerfile
+    ports:
+      - "8000:80"
+    environment:
+      - ENV=development
+
+  ollama:
+    image: ollama/ollama:latest
+    ports:
+      - "8080:8080"
+    volumes:
+      - ollama-data:/data
+
+volumes:
+  ollama-data:

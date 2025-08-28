@@ -1,0 +1,9 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: fastapi-config
+  namespace: your-namespace
+data:
+  ENVIRONMENT: "production"
+  DATABASE_URL: "your-database-url"
+  OTHER_CONFIG: "your-other-config"
