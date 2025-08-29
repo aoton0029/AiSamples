@@ -1,0 +1,11 @@
+FastAPI
+LlamaIndex
+uvicorn
+pydantic
+httpx
+redis
+neo4j
+pymongo
+milvus
+numpy
+pandas
