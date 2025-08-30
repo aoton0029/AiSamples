@@ -1,0 +1,12 @@
+FastAPI
+LlamaIndex
+fastapi[all]
+pydantic
+uvicorn
+requests
+asyncio
+aiomongo
+asyncpg
+neo4j
+redis
+pymilvus

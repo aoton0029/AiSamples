@@ -1,18 +1,15 @@
 @echo off
 setlocal
-
+chcp 65001
 REM ユーザーにディストリビューション名を入力させる
 set /p DISTRO_NAME=Ubuntuディストリビューション名を入力してください:
 
 REM Ubuntuを指定名でインストール
-wsl --install -d Ubuntu --name %DISTRO_NAME%
-
-REM インストール完了まで待機（必要に応じて調整）
-echo インストール完了後、Enterキーを押してください...
-pause
+@REM wsl --install -d Ubuntu --name %DISTRO_NAME% --no-launch
+wsl --import Ubuntu D:\WSL\Ubuntu D:\WSL\UbuntuBase.tar
 
 REM setup.shを実行（setup.shはホームディレクトリに配置しておくこと）
-wsl -d %DISTRO_NAME% bash ~/setup.sh
+wsl -d %DISTRO_NAME% bash ./ubuntu_setup.sh
 
 REM setup.sh終了後、ディストリビューションをエクスポート
 set EXPORT_PATH=%CD%\%DISTRO_NAME%.tar

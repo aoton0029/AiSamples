@@ -1,0 +1,296 @@
+<mxfile host="Electron" modified="2025-08-30T02:34:31.358Z" agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) draw.io/21.6.8 Chrome/114.0.5735.289 Electron/25.5.0 Safari/537.36" version="21.6.8" etag="mIN0i67c0dhEHlLl7b2k" type="device">
+  <diagram name="AI Project Architecture" id="ai-project-arch">
+    <mxGraphModel dx="1390" dy="2053" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1600" pageHeight="1200" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="windows11" value="Windows 11" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;fontSize=16;fontStyle=1;verticalAlign=top;" parent="1" vertex="1">
+          <mxGeometry x="50" y="50" width="1500" height="1100" as="geometry" />
+        </mxCell>
+        <mxCell id="nginx" value="Nginx Reverse Proxy&#xa;Listen: 80, 443&#xa;SSL Termination&#xa;Upstream: WSL:8080/8443" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffe6cc;strokeColor=#d79b00;fontSize=12;fontStyle=1;" parent="1" vertex="1">
+          <mxGeometry x="650" y="80" width="200" height="80" as="geometry" />
+        </mxCell>
+        <mxCell id="wsl" value="WSL Ubuntu" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;fontSize=14;fontStyle=1;verticalAlign=top;" parent="1" vertex="1">
+          <mxGeometry x="100" y="200" width="1400" height="900" as="geometry" />
+        </mxCell>
+        <mxCell id="docker" value="Docker Engine&#xa;TCP: 2375&#xa;TLS: 2376" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;" parent="1" vertex="1">
+          <mxGeometry x="150" y="250" width="120" height="70" as="geometry" />
+        </mxCell>
+        <mxCell id="k3s" value="K3s Cluster&#xa;API Server: 6443" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;fontSize=14;fontStyle=1;verticalAlign=top;" parent="1" vertex="1">
+          <mxGeometry x="300" y="250" width="1150" height="800" as="geometry" />
+        </mxCell>
+        <mxCell id="internet" value="Internet&#xa;HTTP: 80&#xa;HTTPS: 443" style="ellipse;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;fontSize=12;fontStyle=1;" parent="1" vertex="1">
+          <mxGeometry x="680" y="-50" width="140" height="80" as="geometry" />
+        </mxCell>
+        <mxCell id="ingress-controller" value="Ingress Controller&#xa;(Traefik)&#xa;HTTP: 8080&#xa;HTTPS: 8443&#xa;Dashboard: 9080" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ff9999;strokeColor=#b85450;fontSize=11;fontStyle=1;" parent="1" vertex="1">
+          <mxGeometry x="670" y="300" width="160" height="80" as="geometry" />
+        </mxCell>
+        <mxCell id="ingress-n8n" value="Ingress (n8n)&#xa;Path: /n8n/*&#xa;Host: app.local&#xa;Target: 5678" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffcccc;strokeColor=#b85450;fontSize=9;" parent="1" vertex="1">
+          <mxGeometry x="350" y="320" width="100" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="ingress-api" value="Ingress (API)&#xa;Path: /api/*&#xa;Host: api.local&#xa;Target: 8000" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffcccc;strokeColor=#b85450;fontSize=9;" parent="1" vertex="1">
+          <mxGeometry x="900" y="320" width="100" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="n8n-ns" value="n8n Namespace" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=12;fontStyle=1;verticalAlign=top;" parent="1" vertex="1">
+          <mxGeometry x="320" y="420" width="300" height="250" as="geometry" />
+        </mxCell>
+        <mxCell id="n8n-service" value="n8n Service&#xa;Type: ClusterIP&#xa;Port: 5678&#xa;Target: 5678" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#b3d9ff;strokeColor=#6c8ebf;fontSize=10;" parent="1" vertex="1">
+          <mxGeometry x="350" y="460" width="100" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="n8n-deployment" value="n8n Deployment&#xa;Replicas: 1&#xa;Image: n8nio/n8n" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#99ccff;strokeColor=#6c8ebf;fontSize=10;" parent="1" vertex="1">
+          <mxGeometry x="480" y="460" width="110" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="n8n-pod" value="n8n Pod&#xa;Workflow Engine&#xa;Container Port: 5678&#xa;ENV_PORT: 5678" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#cce5ff;strokeColor=#36393d;" parent="1" vertex="1">
+          <mxGeometry x="350" y="550" width="200" height="70" as="geometry" />
+        </mxCell>
+        <mxCell id="ai-ns" value="AI Namespace" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;fontSize=12;fontStyle=1;verticalAlign=top;" parent="1" vertex="1">
+          <mxGeometry x="680" y="420" width="600" height="250" as="geometry" />
+        </mxCell>
+        <mxCell id="ollama-service" value="Ollama Service&#xa;Type: ClusterIP&#xa;Port: 11434&#xa;Target: 11434" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e6ccff;strokeColor=#9673a6;fontSize=9;" parent="1" vertex="1">
+          <mxGeometry x="720" y="460" width="110" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="ollama-deployment" value="Ollama Deploy&#xa;Replicas: 1&#xa;GPU: Required&#xa;Image: ollama/ollama" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d9b3ff;strokeColor=#9673a6;fontSize=9;" parent="1" vertex="1">
+          <mxGeometry x="720" y="540" width="110" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="ollama-pod" value="Ollama Pod&#xa;LLM Service&#xa;Container Port: 11434&#xa;API_PORT: 11434" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f0ccff;strokeColor=#36393d;" parent="1" vertex="1">
+          <mxGeometry x="720" y="620" width="110" height="70" as="geometry" />
+        </mxCell>
+        <mxCell id="fastapi-service" value="FastAPI Service&#xa;Type: ClusterIP&#xa;Port: 8000&#xa;Target: 8000" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e6ccff;strokeColor=#9673a6;fontSize=9;" parent="1" vertex="1">
+          <mxGeometry x="900" y="460" width="110" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="fastapi-deployment" value="FastAPI Deploy&#xa;Replicas: 2&#xa;Image: custom/api" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d9b3ff;strokeColor=#9673a6;fontSize=9;" parent="1" vertex="1">
+          <mxGeometry x="900" y="540" width="110" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="fastapi-pod" value="FastAPI Pod&#xa;REST API&#xa;Container Port: 8000&#xa;UVICORN_PORT: 8000" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f0ccff;strokeColor=#36393d;" parent="1" vertex="1">
+          <mxGeometry x="900" y="620" width="110" height="70" as="geometry" />
+        </mxCell>
+        <mxCell id="db-ns" value="Database Namespace" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;fontSize=12;fontStyle=1;verticalAlign=top;" parent="1" vertex="1">
+          <mxGeometry x="320" y="720" width="960" height="300" as="geometry" />
+        </mxCell>
+        <mxCell id="redis-service" value="Redis Service&#xa;Type: ClusterIP&#xa;Port: 6379&#xa;Target: 6379" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#b3ffb3;strokeColor=#82b366;fontSize=9;" parent="1" vertex="1">
+          <mxGeometry x="360" y="760" width="110" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="neo4j-service" value="Neo4j Service&#xa;Type: ClusterIP&#xa;HTTP: 7474&#xa;Bolt: 7687" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#b3ffb3;strokeColor=#82b366;fontSize=9;" parent="1" vertex="1">
+          <mxGeometry x="520" y="760" width="110" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="mongodb-service" value="MongoDB Service&#xa;Type: ClusterIP&#xa;Port: 27017&#xa;Target: 27017" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#b3ffb3;strokeColor=#82b366;fontSize=9;" parent="1" vertex="1">
+          <mxGeometry x="680" y="760" width="110" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="milvus-service" value="Milvus Service&#xa;Type: ClusterIP&#xa;GRPC: 19530&#xa;HTTP: 9091" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#b3ffb3;strokeColor=#82b366;fontSize=9;" parent="1" vertex="1">
+          <mxGeometry x="840" y="760" width="110" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="redis-deployment" value="Redis Deploy&#xa;Replicas: 1&#xa;Persistent: Yes&#xa;Image: redis:alpine" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#99ff99;strokeColor=#82b366;fontSize=9;" parent="1" vertex="1">
+          <mxGeometry x="360" y="830" width="110" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="neo4j-deployment" value="Neo4j Deploy&#xa;Replicas: 1&#xa;Persistent: Yes&#xa;Image: neo4j:latest" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#99ff99;strokeColor=#82b366;fontSize=9;" parent="1" vertex="1">
+          <mxGeometry x="520" y="830" width="110" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="mongodb-deployment" value="MongoDB Deploy&#xa;Replicas: 1&#xa;Persistent: Yes&#xa;Image: mongo:latest" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#99ff99;strokeColor=#82b366;fontSize=9;" parent="1" vertex="1">
+          <mxGeometry x="680" y="830" width="110" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="milvus-deployment" value="Milvus Deploy&#xa;Replicas: 1&#xa;Persistent: Yes&#xa;Image: milvusdb/milvus" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#99ff99;strokeColor=#82b366;fontSize=9;" parent="1" vertex="1">
+          <mxGeometry x="840" y="830" width="110" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="redis-pod" value="Redis Pod&#xa;In-Memory Cache&#xa;Port: 6379&#xa;Protocol: TCP" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ccffcc;strokeColor=#36393d;" parent="1" vertex="1">
+          <mxGeometry x="360" y="900" width="110" height="70" as="geometry" />
+        </mxCell>
+        <mxCell id="neo4j-pod" value="Neo4j Pod&#xa;Graph Database&#xa;HTTP: 7474&#xa;Bolt: 7687" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ccffcc;strokeColor=#36393d;fontSize=9;" parent="1" vertex="1">
+          <mxGeometry x="520" y="900" width="110" height="70" as="geometry" />
+        </mxCell>
+        <mxCell id="mongodb-pod" value="MongoDB Pod&#xa;Document Database&#xa;Port: 27017&#xa;Protocol: TCP" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ccffcc;strokeColor=#36393d;fontSize=9;" parent="1" vertex="1">
+          <mxGeometry x="680" y="900" width="110" height="70" as="geometry" />
+        </mxCell>
+        <mxCell id="milvus-pod" value="Milvus Pod&#xa;Vector Database&#xa;GRPC: 19530&#xa;HTTP: 9091" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ccffcc;strokeColor=#36393d;fontSize=9;" parent="1" vertex="1">
+          <mxGeometry x="840" y="900" width="110" height="70" as="geometry" />
+        </mxCell>
+        <mxCell id="internet-nginx" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeWidth=3;strokeColor=#ff0000;" parent="1" source="internet" target="nginx" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="nginx-ingress" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeWidth=3;strokeColor=#d79b00;" parent="1" source="nginx" target="ingress-controller" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="port-80-443-nginx" value="80/443" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=10;fontStyle=1;color=#ff0000;" parent="1" vertex="1">
+          <mxGeometry x="520" y="50" width="40" height="20" as="geometry" />
+        </mxCell>
+        <mxCell id="port-8080-8443" value="8080/8443" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=10;fontStyle=1;color=#d79b00;" parent="1" vertex="1">
+          <mxGeometry x="600" y="150" width="60" height="20" as="geometry" />
+        </mxCell>
+        <mxCell id="controller-n8n-ingress" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#b85450;" parent="1" source="ingress-controller" target="ingress-n8n" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="controller-api-ingress" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#b85450;" parent="1" source="ingress-controller" target="ingress-api" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="ingress-n8n-service" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#6c8ebf;" parent="1" source="ingress-n8n" target="n8n-service" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="ingress-fastapi-service" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#9673a6;" parent="1" source="ingress-api" target="fastapi-service" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="n8n-service-deployment" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#6c8ebf;" parent="1" source="n8n-service" target="n8n-deployment" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="n8n-deployment-pod" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#6c8ebf;" parent="1" source="n8n-deployment" target="n8n-pod" edge="1">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="445" y="430" />
+              <mxPoint x="380" y="430" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="ollama-service-deployment" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#9673a6;" parent="1" source="ollama-service" target="ollama-deployment" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="ollama-deployment-pod" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#9673a6;" parent="1" source="ollama-deployment" target="ollama-pod" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="fastapi-service-deployment" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#9673a6;" parent="1" source="fastapi-service" target="fastapi-deployment" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="fastapi-deployment-pod" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#9673a6;" parent="1" source="fastapi-deployment" target="fastapi-pod" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="redis-service-deployment" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#82b366;" parent="1" source="redis-service" target="redis-deployment" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="redis-deployment-pod" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#82b366;" parent="1" source="redis-deployment" target="redis-pod" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="neo4j-service-deployment" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#82b366;" parent="1" source="neo4j-service" target="neo4j-deployment" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="neo4j-deployment-pod" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#82b366;" parent="1" source="neo4j-deployment" target="neo4j-pod" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="mongodb-service-deployment" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#82b366;" parent="1" source="mongodb-service" target="mongodb-deployment" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="mongodb-deployment-pod" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#82b366;" parent="1" source="mongodb-deployment" target="mongodb-pod" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="milvus-service-deployment" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#82b366;" parent="1" source="milvus-service" target="milvus-deployment" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="milvus-deployment-pod" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#82b366;" parent="1" source="milvus-deployment" target="milvus-pod" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="n8n-ollama-service" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#9673a6;strokeWidth=2;" parent="1" source="n8n-pod" target="ollama-service" edge="1">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="380" y="370" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="n8n-fastapi-service" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#9673a6;strokeWidth=2;" parent="1" source="n8n-pod" target="fastapi-service" edge="1">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="380" y="350" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="n8n-redis-service" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#6c8ebf;strokeWidth=2;entryX=0.25;entryY=0;entryDx=0;entryDy=0;" parent="1" source="n8n-pod" target="redis-service" edge="1">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="380" y="570" />
+              <mxPoint x="313" y="570" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="n8n-neo4j-service" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#6c8ebf;strokeWidth=2;entryX=0.25;entryY=0;entryDx=0;entryDy=0;" parent="1" source="n8n-pod" target="neo4j-service" edge="1">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="380" y="570" />
+              <mxPoint x="443" y="570" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="n8n-mongodb-service" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#6c8ebf;strokeWidth=2;entryX=0.25;entryY=0;entryDx=0;entryDy=0;" parent="1" source="n8n-pod" target="mongodb-service" edge="1">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="380" y="570" />
+              <mxPoint x="573" y="570" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="n8n-milvus-service" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#6c8ebf;strokeWidth=2;entryX=0.25;entryY=0;entryDx=0;entryDy=0;" parent="1" source="n8n-pod" target="milvus-service" edge="1">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="380" y="570" />
+              <mxPoint x="703" y="570" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="fastapi-ollama-service" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#82b366;strokeWidth=2;" parent="1" source="fastapi-pod" target="ollama-service" edge="1">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="680" y="490" />
+              <mxPoint x="680" y="370" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="fastapi-redis-service" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#82b366;strokeWidth=2;" parent="1" source="fastapi-pod" target="redis-service" edge="1">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="775" y="580" />
+              <mxPoint x="335" y="580" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="fastapi-neo4j-service" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#82b366;strokeWidth=2;" parent="1" source="fastapi-pod" target="neo4j-service" edge="1">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="775" y="580" />
+              <mxPoint x="465" y="580" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="fastapi-mongodb-service" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#82b366;strokeWidth=2;" parent="1" source="fastapi-pod" target="mongodb-service" edge="1">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="775" y="580" />
+              <mxPoint x="595" y="580" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="fastapi-milvus-service" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#82b366;strokeWidth=2;" parent="1" source="fastapi-pod" target="milvus-service" edge="1">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="775" y="580" />
+              <mxPoint x="725" y="580" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="port-5678-n8n" value="5678" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=10;fontStyle=1;color=#6c8ebf;" parent="1" vertex="1">
+          <mxGeometry x="380" y="390" width="30" height="20" as="geometry" />
+        </mxCell>
+        <mxCell id="port-8000-api" value="8000" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=10;fontStyle=1;color=#9673a6;" parent="1" vertex="1">
+          <mxGeometry x="930" y="390" width="30" height="20" as="geometry" />
+        </mxCell>
+        <mxCell id="port-11434-ollama" value="11434" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=9;fontStyle=1;color=#9673a6;" parent="1" vertex="1">
+          <mxGeometry x="620" y="480" width="40" height="15" as="geometry" />
+        </mxCell>
+        <mxCell id="port-8000-fastapi" value="8000" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=9;fontStyle=1;color=#9673a6;" parent="1" vertex="1">
+          <mxGeometry x="830" y="480" width="30" height="15" as="geometry" />
+        </mxCell>
+        <mxCell id="port-6379-redis" value="6379" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=9;fontStyle=1;color=#6c8ebf;" parent="1" vertex="1">
+          <mxGeometry x="410" y="700" width="30" height="15" as="geometry" />
+        </mxCell>
+        <mxCell id="port-7474-neo4j" value="7474/7687" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=8;fontStyle=1;color=#6c8ebf;" parent="1" vertex="1">
+          <mxGeometry x="550" y="700" width="50" height="15" as="geometry" />
+        </mxCell>
+        <mxCell id="port-27017-mongo" value="27017" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=9;fontStyle=1;color=#6c8ebf;" parent="1" vertex="1">
+          <mxGeometry x="720" y="700" width="40" height="15" as="geometry" />
+        </mxCell>
+        <mxCell id="port-19530-milvus" value="19530/9091" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=8;fontStyle=1;color=#6c8ebf;" parent="1" vertex="1">
+          <mxGeometry x="865" y="700" width="60" height="15" as="geometry" />
+        </mxCell>
+        <mxCell id="port-summary" value="Port Summary:&#xa;&#xa;External Access (Nginx):&#xa;• HTTP: 80 → WSL:8080&#xa;• HTTPS: 443 → WSL:8443&#xa;&#xa;Application Routes:&#xa;• /n8n/* → n8n:5678&#xa;• /api/* → FastAPI:8000&#xa;&#xa;AI Services:&#xa;• Ollama LLM: 11434&#xa;• FastAPI REST: 8000&#xa;&#xa;Database Ports:&#xa;• Redis Cache: 6379&#xa;• Neo4j Graph: 7474/7687&#xa;• MongoDB Document: 27017&#xa;• Milvus Vector: 19530/9091&#xa;&#xa;Management:&#xa;• K3s API: 6443&#xa;• Traefik Dashboard: 9080&#xa;• Docker Engine: 2375/2376&#xa;&#xa;SSL/TLS:&#xa;• Nginx terminates SSL&#xa;• Internal traffic: HTTP" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=#666666;fontSize=9;verticalAlign=top;align=left;" parent="1" vertex="1">
+          <mxGeometry x="1320" y="300" width="200" height="350" as="geometry" />
+        </mxCell>
+        <mxCell id="legend" value="Network Flow Legend:&#xa;&#xa;Colors:&#xa;• Red: External Traffic (80/443)&#xa;• Orange: Nginx → K3s (8080/8443)&#xa;• Blue: n8n Workflows&#xa;• Purple: AI Service Communication&#xa;• Green: FastAPI Data Access&#xa;• Black: K8s Infrastructure&#xa;&#xa;Line Thickness:&#xa;• Thick: Main traffic flow&#xa;• Medium: Service communication&#xa;• Thin: Management/control&#xa;&#xa;Protocols:&#xa;• HTTP/HTTPS: Web traffic&#xa;• TCP: Database connections&#xa;• GRPC: Milvus vector queries&#xa;• Bolt: Neo4j graph protocol" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e8f4fd;strokeColor=#6c8ebf;fontSize=9;verticalAlign=top;align=left;" parent="1" vertex="1">
+          <mxGeometry x="1320" y="680" width="200" height="240" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>
