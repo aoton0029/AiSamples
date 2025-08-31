@@ -1,0 +1,11 @@
+services:
+  app:
+    image: my-python-app:latest
+    ports:
+      - "8000:8000"
+    volumes:
+      - .:/app
+    working_dir: /app
+    command: python app.py
+    environment:
+      - FLASK_ENV=development

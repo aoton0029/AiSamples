@@ -1,0 +1,9 @@
+dotenv
+setuptools
+numpy
+pandas
+requests
+fastapi
+sqlalchemy
+pydantic
+uvicorn
