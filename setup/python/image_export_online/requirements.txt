@@ -1,9 +1,11 @@
-dotenv
+python-dotenv
 setuptools
 numpy
 pandas
 requests
 fastapi
+fastmcp
 sqlalchemy
 pydantic
 uvicorn
+llama-index

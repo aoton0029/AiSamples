@@ -1,5 +1,0 @@
-LlamaIndex
-Ollama
-numpy
-pandas
-requests

@@ -15,6 +15,11 @@ sudo apt-get install \
     tar \
     #build-essential
 
+sudo chmod 777 /etc/ssh/sshd_config
+sudo sed -i 's/^#\?Port .*/Port 22/' /etc/ssh/sshd_config
+sudo sed -i 's/^#\?PubkeyAuthentication .*/PubkeyAuthentication yes/' /etc/ssh/sshd_config
+sudo sed -i 's/^#\?AddressFamily .*/AddressFamily inet/' /etc/ssh/sshd_config
+
 #Docker
 sudo install -m 0755 -d /etc/apt/keyrings
 sudo curl -fsSL https://download.docker.com/linux/ubuntu/gpg -o /etc/apt/keyrings/docker.asc
@@ -55,7 +60,11 @@ rm vscode-server.tar.gz
 sudo apt-get install -y uidmap dbus-user-session
 
 # kubernetes
-sudo curl -sfL https://get.k3s.io | sh -s - --write-kubeconfig-mode 644
+sudo curl -sfL https://get.k3s.io | sh -s - \
+  --write-kubeconfig-mode 644 \
+  # --disable traefik \                # traefikを無効化したい場合
+  # --disable local-storage \          # local-path-provisionerを無効化したい場合
+  # --flannel-backend=host-gw          # flannelのバックエンド指定
 
 # kubectl
 curl -LO "https://storage.googleapis.com/kubernetes-release/release/$(curl -s https://storage.googleapis.com/kubernetes-release/release/stable.txt)/bin/linux/amd64/kubectl"
@@ -76,3 +85,12 @@ sudo tar Cxzvvf /opt/cni/bin cni-plugins-linux-amd64-v1.7.1.tgz
 curl -OL https://github.com/moby/buildkit/releases/download/v0.21.1/buildkit-v0.21.1.linux-amd64.tar.gz
 sudo tar Cxzvvf /usr/local/ buildkit-v0.21.1.linux-amd64.tar.gz
 CONTAINERD_NAMESPACE=default containerd-rootless-setuptool.sh install-buildkit-containerd
+
+# # metrics-server
+# kubectl apply -f https://github.com/kubernetes-sigs/metrics-server/releases/latest/download/components.yaml
+
+# # cert-manager
+# kubectl apply -f https://github.com/cert-manager/cert-manager/releases/latest/download/cert-manager.yaml
+
+# # metallb
+# kubectl apply -f https://raw.githubusercontent.com/metallb/metallb/v0.14.5/config/manifests/metallb-native.yaml
