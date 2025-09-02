@@ -1,7 +1,0 @@
-services:
-  app:
-    image: python13_3:dev
-    volumes:
-      - ..:/workspace:cached
-    command: sleep infinity
-    # 必要に応じてportsやenvironmentを追加

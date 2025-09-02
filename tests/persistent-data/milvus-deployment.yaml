@@ -1,0 +1,50 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: persistent-data
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: milvus
+  namespace: persistent-data
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: milvus
+  template:
+    metadata:
+      labels:
+        app: milvus
+    spec:
+      containers:
+      - name: milvus
+        image: milvusdb/milvus:latest
+        ports:
+        - containerPort: 19530
+        - containerPort: 9091
+        volumeMounts:
+        - name: milvus-data
+          mountPath: /var/lib/milvus
+      volumes:
+      - name: milvus-data
+        hostPath:
+          path: /opt/milvus-data
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: milvus-service
+  namespace: persistent-data
+spec:
+  type: LoadBalancer
+  selector:
+    app: milvus
+  ports:
+  - name: grpc
+    port: 19530
+    targetPort: 19530
+  - name: rest
+    port: 9091
+    targetPort: 9091

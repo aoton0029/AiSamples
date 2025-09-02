@@ -1,87 +1,70 @@
-# k3s Production Application
+# Project Documentation
 
-This project is designed to deploy a production-ready application using k3s, kubectl, and nerctl for pod management, version control, orchestration, and scaling. Below are the details and instructions for setting up and managing the application.
+## Overview
 
-## Project Structure
+This project is designed to provide a comprehensive solution for managing AI workloads on Kubernetes. It includes tools for orchestration, monitoring, and data management, ensuring a robust and scalable environment for AI development and production.
 
-```
-k3s-production-app
-├── src
-│   ├── app
-│   │   ├── main.py          # Main entry point of the application
-│   │   ├── config.py        # Configuration settings for the application
-│   │   └── requirements.txt  # Python dependencies
-│   └── Dockerfile            # Docker image definition
-├── k8s
-│   ├── namespaces
-│   │   └── production.yaml   # Kubernetes namespace definition
-│   ├── deployments
-│   │   ├── app-deployment.yaml      # Application deployment configuration
-│   │   ├── postgres-deployment.yaml  # PostgreSQL deployment configuration
-│   │   └── redis-deployment.yaml     # Redis deployment configuration
-│   ├── services
-│   │   ├── app-service.yaml          # Application service configuration
-│   │   ├── postgres-service.yaml      # PostgreSQL service configuration
-│   │   └── redis-service.yaml         # Redis service configuration
-│   ├── configmaps
-│   │   └── app-config.yaml            # ConfigMap for application configuration
-│   ├── secrets
-│   │   └── app-secrets.yaml           # Secret for sensitive information
-│   ├── ingress
-│   │   └── app-ingress.yaml           # Ingress resource for routing traffic
-│   ├── persistent-volumes
-│   │   ├── postgres-pv.yaml           # PersistentVolume for PostgreSQL
-│   │   └── redis-pv.yaml              # PersistentVolume for Redis
-│   └── rbac
-│       ├── service-account.yaml        # ServiceAccount definition
-│       └── role-binding.yaml           # RoleBinding definition
-├── scripts
-│   ├── deploy.sh                      # Deployment automation script
-│   ├── scale.sh                       # Scaling automation script
-│   ├── rollback.sh                    # Rollback automation script
-│   └── setup-k3s.sh                  # K3s setup script
-├── monitoring
-│   ├── prometheus
-│   │   └── config.yaml                # Prometheus configuration
-│   └── grafana
-│       └── dashboards.yaml             # Grafana dashboards configuration
-├── helm
-│   ├── Chart.yaml                     # Helm chart metadata
-│   ├── values.yaml                    # Default configuration values for Helm
-│   └── templates
-│       ├── deployment.yaml            # Deployment template for Helm
-│       └── service.yaml               # Service template for Helm
-├── .gitignore                         # Git ignore file
-├── docker-compose.yml                 # Docker Compose configuration
-└── README.md                          # Project documentation
+## Data Backup & Recovery
+
+### Automated Backups
+- Daily backups at 2 AM for all databases
+- Redis: RDB snapshots
+- MongoDB: mongodump
+- Neo4j: Native backup export
+- Milvus: MinIO bucket sync
+
+### Manual Backup/Restore
+```bash
+# Backup all services
+./scripts/backup-restore.sh backup all
+
+# Restore specific service
+./scripts/backup-restore.sh restore redis 2024-01-15
+
+# List available backups
+./scripts/backup-restore.sh list
 ```
 
-## Setup Instructions
+## Monitoring & Alerting
 
-1. **Install k3s**: Use the `setup-k3s.sh` script to install k3s on your server.
-   ```bash
-   ./scripts/setup-k3s.sh
-   ```
+### Components
+- **Prometheus**: Metrics collection and alerting
+- **Grafana**: Visualization dashboards
+- **AlertManager**: Alert routing and notification
+- **Node Exporter**: System metrics on all nodes
 
-2. **Deploy the Application**: Use the `deploy.sh` script to deploy the application to the k3s cluster.
-   ```bash
-   ./scripts/deploy.sh
-   ```
+### Access URLs
+- Grafana: http://SERVICE_CLUSTER_IP:30300 (admin/admin)
+- Prometheus: http://SERVICE_CLUSTER_IP:30090
+- AlertManager: http://SERVICE_CLUSTER_IP:30093
 
-3. **Scale the Application**: To scale the application, use the `scale.sh` script.
-   ```bash
-   ./scripts/scale.sh <number_of_replicas>
-   ```
+### Setup Monitoring
+```bash
+./scripts/setup-monitoring.sh
+```
 
-4. **Rollback**: If needed, you can rollback to a previous version using the `rollback.sh` script.
-   ```bash
-   ./scripts/rollback.sh
-   ```
+### Key Metrics Monitored
+- Database availability and performance
+- Node resource usage (CPU, Memory, Disk)
+- Network connectivity between clusters
+- Container health and restart counts
+- GPU utilization on AI cluster
 
-## Monitoring
+### Alert Configurations
+- Critical: Database down, disk space < 10%
+- Warning: High memory usage > 85%
+- Info: Backup job completion status
 
-The project includes monitoring configurations for Prometheus and Grafana. You can customize the monitoring settings in the respective configuration files located in the `monitoring` directory.
+## Troubleshooting
 
-## Conclusion
+### Common Issues
+- **Database connection errors**: Check if the database service is running and accessible.
+- **Insufficient resources**: Ensure the node has enough CPU and memory allocated.
+- **Network issues**: Verify the network policies and connectivity between pods.
 
-This project provides a comprehensive setup for deploying and managing a production application using modern container orchestration tools. Follow the instructions above to get started with your deployment.
+### Logs
+- Application logs: Located in the respective pod's log
+- System logs: Accessible via `kubectl logs` command
+
+### Support
+For further assistance, please contact the support team or refer to the [Kubernetes documentation](https://kubernetes.io/docs/home/).

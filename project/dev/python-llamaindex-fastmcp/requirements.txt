@@ -1,8 +1,0 @@
-llamaindex
-fastmcp
-sqlalchemy
-psycopg2-binary
-pymongo
-python-dotenv
-fastapi
-uvicorn
