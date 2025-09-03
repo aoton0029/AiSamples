@@ -1,0 +1,11 @@
+fastmcp
+grpcio
+grpcio-tools
+protobuf
+fastapi
+uvicorn
+pydantic
+python-dotenv
+asyncio
+uvloop
+httpx

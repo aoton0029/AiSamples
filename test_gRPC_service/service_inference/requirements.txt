@@ -1,0 +1,17 @@
+fastmcp
+grpcio
+grpcio-tools
+protobuf
+llama-index
+langchain
+langchain-community
+langchain-openai
+transformers
+torch
+ollama
+openai
+anthropic
+pydantic
+python-dotenv
+asyncio
+uvloop

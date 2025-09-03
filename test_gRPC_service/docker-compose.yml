@@ -14,8 +14,6 @@ volumes:
 networks:
   n8n-network:
     name: n8n
-  mcp-network:
-    name: mcp-services
 
 x-n8n: &service-n8n
   image: n8nio/n8n:latest
@@ -69,6 +67,108 @@ x-init-ollama: &init-ollama
     - "sleep 3; ollama pull llama3.2"
 
 services:
+  # MCP Microservices
+  service-chunking:
+    build:
+      context: ./service_chunking
+      dockerfile: Dockerfile
+    container_name: service-chunking
+    networks: ['n8n-network']
+    ports:
+      - "50051:50051"
+    restart: unless-stopped
+    depends_on:
+      - redis
+      - mongodb
+
+  service-tokenize:
+    build:
+      context: ./service_tokenize
+      dockerfile: Dockerfile
+    container_name: service-tokenize
+    networks: ['n8n-network']
+    ports:
+      - "50052:50052"
+    restart: unless-stopped
+
+  service-embedding:
+    build:
+      context: ./service_embedding
+      dockerfile: Dockerfile
+    container_name: service-embedding
+    networks: ['n8n-network']
+    ports:
+      - "50053:50053"
+    restart: unless-stopped
+    environment:
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
+
+  service-indexing:
+    build:
+      context: ./service_indexing
+      dockerfile: Dockerfile
+    container_name: service-indexing
+    networks: ['n8n-network']
+    ports:
+      - "50054:50054"
+    restart: unless-stopped
+    depends_on:
+      - milvus
+      - redis
+      - mongodb
+      - neo4j
+
+  service-rag:
+    build:
+      context: ./service_rag
+      dockerfile: Dockerfile
+    container_name: service-rag
+    networks: ['n8n-network']
+    ports:
+      - "50055:50055"
+    restart: unless-stopped
+    depends_on:
+      - milvus
+      - redis
+      - mongodb
+      - neo4j
+
+  service-context-builder:
+    build:
+      context: ./service_context_builder
+      dockerfile: Dockerfile
+    container_name: service-context-builder
+    networks: ['n8n-network']
+    ports:
+      - "50056:50056"
+    restart: unless-stopped
+
+  service-inference:
+    build:
+      context: ./service_inference
+      dockerfile: Dockerfile
+    container_name: service-inference
+    networks: ['n8n-network']
+    ports:
+      - "50057:50057"
+    restart: unless-stopped
+    environment:
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
+    depends_on:
+      - ollama
+
+  service-tuning:
+    build:
+      context: ./service_tuning
+      dockerfile: Dockerfile
+    container_name: service-tuning
+    networks: ['n8n-network']
+    ports:
+      - "50058:50058"
+    restart: unless-stopped
+    volumes:
+      - ./volumes/tuning_models:/app/models
+
   postgres:
     image: postgres:16-alpine
     container_name: postgres

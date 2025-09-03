@@ -1,0 +1,21 @@
+# MCP Orchestrator Service
+mcp-orchestrator:
+  build:
+    context: ./orchestrator
+    dockerfile: Dockerfile
+  container_name: mcp-orchestrator
+  networks: ['n8n-network']
+  ports:
+    - "3000:3000"
+  restart: unless-stopped
+  depends_on:
+    - service-chunking
+    - service-tokenize
+    - service-embedding
+    - service-indexing
+    - service-rag
+    - service-context-builder
+    - service-inference
+    - service-tuning
+  volumes:
+    - ./volumes/tuning_models:/app/volumes/tuning_models

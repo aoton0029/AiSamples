@@ -1,0 +1,184 @@
+syntax = "proto3";
+
+package mcp_service;
+
+// Common data types
+message Document {
+  string id = 1;
+  string content = 2;
+  string content_type = 3;
+  map<string, string> metadata = 4;
+  int64 timestamp = 5;
+}
+
+message Token {
+  string text = 1;
+  int32 position = 2;
+  map<string, string> attributes = 3;
+}
+
+message Embedding {
+  repeated float values = 1;
+  string model = 2;
+  int32 dimension = 3;
+}
+
+message SearchResult {
+  string id = 1;
+  double score = 2;
+  Document document = 3;
+  Embedding embedding = 4;
+}
+
+// Common request/response types
+message HealthCheckRequest {}
+message HealthCheckResponse {
+  bool healthy = 1;
+  string message = 2;
+}
+
+// Chunking Service
+message ChunkRequest {
+  Document document = 1;
+  map<string, string> chunk_config = 2;
+}
+
+message ChunkResponse {
+  repeated Document chunks = 1;
+  bool success = 2;
+  string message = 3;
+}
+
+service ChunkingService {
+  rpc HealthCheck(HealthCheckRequest) returns (HealthCheckResponse);
+  rpc ChunkDocument(ChunkRequest) returns (ChunkResponse);
+}
+
+// Tokenization Service
+message TokenizeRequest {
+  string text = 1;
+  string language = 2;
+  map<string, string> tokenizer_config = 3;
+}
+
+message TokenizeResponse {
+  repeated Token tokens = 1;
+  bool success = 2;
+  string message = 3;
+}
+
+service TokenizationService {
+  rpc HealthCheck(HealthCheckRequest) returns (HealthCheckResponse);
+  rpc TokenizeText(TokenizeRequest) returns (TokenizeResponse);
+}
+
+// Embedding Service
+message EmbeddingRequest {
+  repeated string texts = 1;
+  string model = 2;
+  map<string, string> embedding_config = 3;
+}
+
+message EmbeddingResponse {
+  repeated Embedding embeddings = 1;
+  bool success = 2;
+  string message = 3;
+}
+
+service EmbeddingService {
+  rpc HealthCheck(HealthCheckRequest) returns (HealthCheckResponse);
+  rpc GenerateEmbeddings(EmbeddingRequest) returns (EmbeddingResponse);
+}
+
+// Indexing Service
+message IndexRequest {
+  repeated Document documents = 1;
+  repeated Embedding embeddings = 2;
+  string index_type = 3;
+  map<string, string> index_config = 4;
+}
+
+message IndexResponse {
+  repeated string indexed_ids = 1;
+  bool success = 2;
+  string message = 3;
+}
+
+service IndexingService {
+  rpc HealthCheck(HealthCheckRequest) returns (HealthCheckResponse);
+  rpc IndexDocuments(IndexRequest) returns (IndexResponse);
+}
+
+// RAG Service
+message RAGSearchRequest {
+  string query = 1;
+  int32 top_k = 2;
+  repeated string index_types = 3;
+  map<string, string> search_config = 4;
+}
+
+message RAGSearchResponse {
+  repeated SearchResult results = 1;
+  bool success = 2;
+  string message = 3;
+}
+
+service RAGService {
+  rpc HealthCheck(HealthCheckRequest) returns (HealthCheckResponse);
+  rpc SearchDocuments(RAGSearchRequest) returns (RAGSearchResponse);
+}
+
+// Context Builder Service
+message ContextBuildRequest {
+  string query = 1;
+  repeated SearchResult search_results = 2;
+  map<string, string> context_config = 3;
+}
+
+message ContextBuildResponse {
+  string context = 1;
+  string prompt = 2;
+  bool success = 3;
+  string message = 4;
+}
+
+service ContextBuilderService {
+  rpc HealthCheck(HealthCheckRequest) returns (HealthCheckResponse);
+  rpc BuildContext(ContextBuildRequest) returns (ContextBuildResponse);
+}
+
+// Inference Service
+message InferenceRequest {
+  string prompt = 1;
+  string model = 2;
+  map<string, string> inference_config = 3;
+}
+
+message InferenceResponse {
+  string response = 1;
+  bool success = 2;
+  string message = 3;
+}
+
+service InferenceService {
+  rpc HealthCheck(HealthCheckRequest) returns (HealthCheckResponse);
+  rpc GenerateResponse(InferenceRequest) returns (InferenceResponse);
+}
+
+// Tuning Service
+message TuningRequest {
+  repeated Document training_data = 1;
+  string model_type = 2;
+  map<string, string> tuning_config = 3;
+}
+
+message TuningResponse {
+  string model_id = 1;
+  bool success = 2;
+  string message = 3;
+}
+
+service TuningService {
+  rpc HealthCheck(HealthCheckRequest) returns (HealthCheckResponse);
+  rpc TuneModel(TuningRequest) returns (TuningResponse);
+}

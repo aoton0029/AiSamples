@@ -1,0 +1,16 @@
+fastmcp
+grpcio
+grpcio-tools
+protobuf
+llama-index
+langchain
+langchain-community
+langchain-openai
+pydantic
+python-dotenv
+asyncio
+uvloop
+redis
+pymongo
+neo4j
+pymilvus
