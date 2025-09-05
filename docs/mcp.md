@@ -1,1 +1,0 @@
-https://knowledge.sakura.ad.jp/45883/
