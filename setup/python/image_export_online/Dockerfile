@@ -1,13 +1,15 @@
-FROM python:3.13-slim
+FROM python:3.12-slim
 
-WORKDIR /app
-
-# システムパッケージの更新とインストール
+# 必要なパッケージのインストール
 RUN apt-get update && apt-get install -y \
     gcc \
     build-essential \
-    && rm -rf /var/lib/apt/lists/*
+    && rm -rf /var/lib/apt/lists/* \
+    && pip install --upgrade pip
 
-# requirements.txtをコピーして依存関係をインストール
+# 作業ディレクトリの作成
+WORKDIR /workspace
+
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
+

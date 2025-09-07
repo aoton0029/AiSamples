@@ -14,8 +14,6 @@ volumes:
 networks:
   n8n-network:
     name: n8n
-  mcp-network:
-    name: mcp-services
 
 x-n8n: &service-n8n
   image: n8nio/n8n:latest
@@ -166,7 +164,14 @@ services:
       - ETCD_HEARTBEAT_INTERVAL=100
       - ETCD_ELECTION_TIMEOUT=1000
       - ETCD_MAX_REQUEST_BYTES=33554432
-    command: etcd -advertise-client-urls=http://127.0.0.1:2379 -listen-client-urls http://0.0.0.0:2379 --data-dir /opt/bitnami/etcd/data/default.etcd --force-new-cluster
+    command: >
+      etcd
+      -advertise-client-urls http://0.0.0.0:2379
+      -listen-client-urls http://0.0.0.0:2379
+      -listen-peer-urls http://0.0.0.0:2380
+      -initial-advertise-peer-urls http://0.0.0.0:2380
+      --data-dir /opt/bitnami/etcd/data/default.etcd
+      --force-new-cluster
     volumes:
       - etcd_storage:/opt/bitnami/etcd/data
     healthcheck:
