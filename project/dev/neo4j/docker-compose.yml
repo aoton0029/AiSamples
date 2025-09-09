@@ -1,0 +1,16 @@
+  neo4j:
+    image: neo4j-with-plugins:latest  # カスタムイメージ使用
+    container_name: neo4j
+    networks: ['n8n-network']
+    restart: unless-stopped
+    ports:
+      - "7474:7474"
+      - "7687:7687"
+    environment:
+      - NEO4J_AUTH=neo4j/${NEO4J_PASSWORD}
+      # プラグイン指定は不要（既にイメージに含まれている）
+      - NEO4J_apoc_export_file_enabled=true
+      - NEO4J_apoc_import_file_enabled=true
+    volumes:
+      - neo4j_storage:/data
+      - ./volumes/neo4j/import:/var/lib/neo4j/import
