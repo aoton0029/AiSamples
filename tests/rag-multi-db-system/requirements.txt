@@ -1,0 +1,15 @@
+redis
+pymongo
+neo4j
+pymilvus
+requests
+beautifulsoup4
+pandas
+chardet
+python-dotenv
+pytest
+pytest-cov
+flask
+flask-cors
+flask-restful
+flask-jwt-extended

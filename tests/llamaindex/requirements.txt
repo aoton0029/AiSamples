@@ -1,0 +1,28 @@
+# RAGシステム必要パッケージ
+llama-index-core
+llama-index-llms-ollama
+llama-index-embeddings-ollama
+llama-index-readers-file
+
+# LlamaIndex DB統合パッケージ
+llama-index-vector-stores-milvus
+llama-index-storage-docstore-mongodb
+llama-index-graph-stores-neo4j
+llama-index-storage-kvstore-redis
+
+# データベースクライアント（直接接続用）
+pymongo
+pymilvus
+neo4j
+redis
+
+# ドキュメント処理
+beautifulsoup4
+chardet
+pandas
+pypdf
+python-docx
+
+# その他ユーティリティ
+requests
+numpy

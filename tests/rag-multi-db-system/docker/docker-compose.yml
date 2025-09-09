@@ -1,0 +1,61 @@
+version: '3.8'
+
+services:
+  redis:
+    image: redis:latest
+    container_name: redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+
+  mongo:
+    image: mongo:latest
+    container_name: mongo
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo_data:/data/db
+    environment:
+      MONGO_INITDB_DATABASE: rag_system
+      MONGO_INITDB_ROOT_USERNAME: root
+      MONGO_INITDB_ROOT_PASSWORD: example
+
+  neo4j:
+    image: neo4j:latest
+    container_name: neo4j
+    ports:
+      - "7687:7687"
+      - "7474:7474"
+    volumes:
+      - neo4j_data:/data
+    environment:
+      NEO4J_AUTH: neo4j/password
+    command: ["neo4j-admin", "set-initial-password", "password"]
+
+  milvus:
+    image: milvusdb/milvus:latest
+    container_name: milvus
+    ports:
+      - "19530:19530"
+    environment:
+      MILVUS_DB: milvus_db
+      MILVUS_PORT: 19530
+
+  app:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile
+    container_name: rag_app
+    ports:
+      - "8000:8000"
+    depends_on:
+      - redis
+      - mongo
+      - neo4j
+      - milvus
+
+volumes:
+  redis_data:
+  mongo_data:
+  neo4j_data:
