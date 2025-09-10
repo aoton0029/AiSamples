@@ -10,12 +10,16 @@ langchain-community
 langchain-ollama
 langchain-milvus
 langchain-mongodb
+langchain-neo4j
 llama-index
 llama-index-core
 llama-index-vector-stores-milvus
 llama-index-embeddings-ollama
 llama-index-llms-ollama
 llama-index-embeddings-langchain
+llama-index-tools-neo4j
+llama-index-graph-stores-neo4j
+llama-index-packs-neo4j-query-engine
 ollama
 pymilvus
 pymongo
@@ -31,3 +35,10 @@ sqlalchemy
 pymssql
 jinja2
 mongo
+pika
+neo4j
+numpy
+pandas
+torch
+pytest
+

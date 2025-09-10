@@ -1,0 +1,33 @@
+version: "3.9"
+
+services:
+  rabbitmq:
+    image: rabbitmq:3.13-management
+    container_name: rabbitmq
+    hostname: rabbitmq
+    restart: unless-stopped
+    ports:
+      - "5672:5672"      # AMQP
+      - "15672:15672"    # HTTP Management UI
+      - "15692:15692"    # (Optional) Prometheus metrics (enabled via plugins file)
+    environment:
+      # These are overridden by values in .env if present (docker compose automatically loads .env)
+      RABBITMQ_DEFAULT_USER: ${RABBITMQ_DEFAULT_USER:-devuser}
+      RABBITMQ_DEFAULT_PASS: ${RABBITMQ_DEFAULT_PASS:-devpass}
+      RABBITMQ_ERLANG_COOKIE: ${RABBITMQ_ERLANG_COOKIE:-DEV_COOKIE_123456789}
+      # Import definitions (users, vhosts, policies, queues) on first boot if file exists
+      RABBITMQ_SERVER_ADDITIONAL_ERL_ARGS: -rabbitmq_management load_definitions "/etc/rabbitmq/definitions.json"
+    volumes:
+      - ./data:/var/lib/rabbitmq/mnesia
+      - ./config/enabled_plugins:/etc/rabbitmq/enabled_plugins:ro
+      - ./config/definitions.json:/etc/rabbitmq/definitions.json:ro
+    healthcheck:
+      test: ["CMD", "rabbitmq-diagnostics", "check_running"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 20s
+
+# Named volumes alternative (uncomment if you prefer Docker managed volume instead of bind mount)
+# volumes:
+#   rabbitmq_data:
