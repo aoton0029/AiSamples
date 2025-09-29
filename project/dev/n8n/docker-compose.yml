@@ -2,14 +2,13 @@ name: dev
 
 volumes:
   postgres_storage:
-  etcd_storage: 
+  etcd_storage:
+  minio_storage:
   milvus_storage:
   neo4j_storage:
-  neo4j_plugins:
   redis_storage:
   mongodb_storage:
   n8n_storage:
-  ollama_models:
 
 networks:
   n8n-network:
@@ -37,28 +36,25 @@ x-n8n: &service-n8n
     - DB_POSTGRESDB_HOST=postgres
     - DB_POSTGRESDB_PORT=5432
     - DB_POSTGRESDB_DATABASE=${POSTGRES_DATABASE}
-    - DB_POSTGRESDB_USER=${POSTGRES_USERNAME}
-    - DB_POSTGRESDB_PASSWORD=${POSTGRES_PASSWORD}
-  env_file:
-    - path: .env
-      required: true
+    - DB_POSTGRESDB_USER=${COMMON_USERNAME}
+    - DB_POSTGRESDB_PASSWORD=${COMMON_PASSWORD}
 
 x-ollama: &service-ollama
-  image: ollama/ollama:latest
+  image: ollama/ollama:0.12.3
   container_name: ollama
   networks: ['n8n-network']
   restart: unless-stopped
   ports:
     - 11434:11434
   volumes:
-    - ollama_models:/root/.ollama
+    - ./volumes/ollama_models:/root/.ollama
 
 x-init-ollama: &init-ollama
-  image: ollama/ollama:latest
+  image: ollama/ollama:0.12.3
   networks: ['n8n-network']
   container_name: ollama-pull-llama
   volumes:
-    - ollama_models:/root/.ollama
+    - ./volumes/ollama_models:/root/.ollama
   entrypoint: /bin/sh
   environment:
     - OLLAMA_HOST=ollama:11434
@@ -76,18 +72,15 @@ services:
       - "5432:5432"
     environment:
       - POSTGRES_DB=${POSTGRES_DATABASE}
-      - POSTGRES_USER=${POSTGRES_USERNAME}
-      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+      - POSTGRES_USER=${COMMON_USERNAME}
+      - POSTGRES_PASSWORD=${COMMON_PASSWORD}
     volumes:
       - postgres_storage:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USERNAME} -d ${POSTGRES_DATABASE}"]
+      test: ["CMD-SHELL", "pg_isready -U ${COMMON_USERNAME} -d ${POSTGRES_DATABASE}"]
       interval: 30s
       timeout: 10s
       retries: 3
-    env_file:
-      - path: .env
-        required: true
   
   n8n-import:
     <<: *service-n8n
@@ -111,7 +104,7 @@ services:
     ports:
       - 5678:5678
     volumes:
-      - n8n_storage:/home/node/.n8n
+      - ./volumes/n8n:/home/node/.n8n
       - ./volumes/n8n-data/demo-data:/demo-data
       - ./volumes/n8n-data/shared:/data/shared
     depends_on:
@@ -152,118 +145,100 @@ services:
       - ollama-gpu
 
   etcd:
-    image: quay.io/coreos/etcd:v3.6.4
-    container_name: etcd
+    container_name: milvus-etcd
+    image: quay.io/coreos/etcd:v3.5.18
     networks: ['n8n-network']
-    restart: unless-stopped
     environment:
       - ETCD_AUTO_COMPACTION_MODE=revision
       - ETCD_AUTO_COMPACTION_RETENTION=1000
       - ETCD_QUOTA_BACKEND_BYTES=4294967296
       - ETCD_SNAPSHOT_COUNT=50000
-      - ETCD_HEARTBEAT_INTERVAL=100
-      - ETCD_ELECTION_TIMEOUT=1000
-      - ETCD_MAX_REQUEST_BYTES=33554432
-    command: >
-      etcd
-      -advertise-client-urls http://0.0.0.0:2379
-      -listen-client-urls http://0.0.0.0:2379
-      -listen-peer-urls http://0.0.0.0:2380
-      -initial-advertise-peer-urls http://0.0.0.0:2380
-      --data-dir /opt/bitnami/etcd/data/default.etcd
-      --force-new-cluster
+      # - ETCD_HEARTBEAT_INTERVAL=100
+      # - ETCD_ELECTION_TIMEOUT=1000
     volumes:
-      - etcd_storage:/opt/bitnami/etcd/data
+      - etcd_storage:/etcd
+    command: etcd -advertise-client-urls=http://etcd:2379 -listen-client-urls http://0.0.0.0:2379 --data-dir /etcd
     healthcheck:
       test: ["CMD", "etcdctl", "endpoint", "health"]
       interval: 30s
-      timeout: 10s
-      retries: 5
-      start_period: 30s
+      timeout: 20s
+      retries: 3
 
   minio:
-    image: minio/minio:RELEASE.2025-07-23T15-54-02Z
-    container_name: minio
+    container_name: milvus-minio
+    image: minio/minio:RELEASE.2024-12-18T13-15-44Z
     networks: ['n8n-network']
-    restart: unless-stopped
-    ports:
-      - "9000:9000"
-      - "9001:9001"
     environment:
-      - MINIO_ACCESS_KEY=${MINIO_ACCESS_KEY:-minioadmin}
-      - MINIO_SECRET_KEY=${MINIO_SECRET_KEY:-minioadmin}
-    command: minio server /data --console-address ":9001"
+      MINIO_ACCESS_KEY: minioadmin
+      MINIO_SECRET_KEY: minioadmin
+    ports:
+      - "9001:9001"
+      - "9000:9000"
     volumes:
-      - milvus_storage:/data
+      - minio_storage:/minio_data
+    command: minio server /minio_data --console-address ":9001"
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:9000/minio/health/live"]
       interval: 30s
-      timeout: 10s
+      timeout: 20s
       retries: 3
 
   milvus:
-    image: milvusdb/milvus:v2.4.15
     container_name: milvus
-    environment:
-      - ETCD_ENDPOINTS=etcd:2379
-      - MINIO_ADDRESS=minio:9000
-      - MINIO_ACCESS_KEY=${MINIO_ACCESS_KEY:-minioadmin}
-      - MINIO_SECRET_KEY=${MINIO_SECRET_KEY:-minioadmin}
-      - MILVUS_MODE=standalone
-      - COMMON_STORAGETYPE=minio
+    image: milvusdb/milvus:v2.6.1
+    command: ["milvus", "run", "standalone"]
     networks: ['n8n-network']
-    restart: unless-stopped
+    environment:
+      ETCD_ENDPOINTS: etcd:2379
+      MINIO_ADDRESS: minio:9000
+      MQ_TYPE: woodpecker
+    volumes:
+      - milvus_storage:/var/lib/milvus
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9091/healthz"]
+      interval: 30s
+      start_period: 90s
+      timeout: 20s
+      retries: 3
     ports:
       - "19530:19530"
       - "9091:9091"
-    volumes:
-      - milvus_storage:/var/lib/milvus
-    command: ["milvus", "run", "standalone"]
-    depends_on:
-      etcd:
-        condition: service_healthy
-      minio:
-        condition: service_healthy
-    healthcheck:
-      test: ["CMD-SHELL", "wget -q -O /dev/null --spider http://localhost:9091/healthz 2>/dev/null || exit 1"]
-      interval: 60s
-      timeout: 5s
-      retries: 3
-      start_period: 180s
     deploy:
       resources:
         limits:
           memory: 2G
         reservations:
           memory: 1G
-
-  # neo4j:
-  #   image: neo4j:5.13-community
-  #   container_name: neo4j
-  #   networks: ['n8n-network']
-  #   restart: unless-stopped
-  #   ports:
-  #     - "7474:7474"
-  #     - "7687:7687"
-  #   environment:
-  #     - NEO4J_AUTH=neo4j/${NEO4J_PASSWORD}
-  #     - NEO4J_PLUGINS=["apoc", "graph-data-science"]
-  #     - NEO4J_apoc_export_file_enabled=true
-  #     - NEO4J_apoc_import_file_enabled=true
-  #     - NEO4J_apoc_import_file_use__neo4j__config=true
-  #   volumes:
-  #     - neo4j_storage:/data
-  #     - neo4j_plugins:/plugins
-  #     - ./volumes/neo4j/import:/var/lib/neo4j/import
-  #     - ./volumes/neo4j/logs:/logs
-  #   healthcheck:
-  #     test: ["CMD-SHELL", "cypher-shell -u neo4j -p ${NEO4J_PASSWORD} 'RETURN 1'"]
-  #     interval: 30s
-  #     timeout: 10s
-  #     retries: 3
-  #   env_file:
-  #     - path: .env
-  #       required: true
+    depends_on:
+      etcd:
+        condition: service_healthy
+      minio:
+        condition: service_healthy
+  
+  neo4j:
+    image: neo4j:2025.08.0-community
+    container_name: neo4j
+    networks: ['n8n-network']
+    restart: unless-stopped
+    ports:
+      - "7474:7474"
+      - "7687:7687"
+    environment:
+      - NEO4J_AUTH=neo4j/p@ssw0rd
+      - NEO4J_PLUGINS=["apoc"]
+      - NEO4J_apoc_export_file_enabled=true
+      - NEO4J_apoc_import_file_enabled=true
+      - NEO4J_apoc_import_file_use__neo4j__config=true
+    volumes:
+      - neo4j_storage:/data
+      - ./volumes/neo4j/plugins:/plugins
+      - ./volumes/neo4j/import:/var/lib/neo4j/import
+      - ./volumes/neo4j/logs:/logs
+    healthcheck:
+      test: ["CMD-SHELL", "cypher-shell -u neo4j -p ${COMMON_PASSWORD} 'RETURN 1'"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
 
   redis:
     image: redis:7-alpine
@@ -273,14 +248,14 @@ services:
     ports:
       - "6379:6379"
     environment:
-      - REDIS_PASSWORD=${REDIS_PASSWORD}
+      - REDIS_PASSWORD=${COMMON_PASSWORD}
     volumes:
       - redis_storage:/data
       - ./volumes/redis/conf:/usr/local/etc/redis
     command: >
       sh -c "
-        if [ -n \"${REDIS_PASSWORD}\" ]; then
-          redis-server --appendonly yes --requirepass ${REDIS_PASSWORD} --maxmemory 256mb --maxmemory-policy allkeys-lru
+        if [ -n \"${COMMON_PASSWORD}\" ]; then
+          redis-server --appendonly yes --requirepass ${COMMON_PASSWORD} --maxmemory 256mb --maxmemory-policy allkeys-lru
         else
           redis-server --appendonly yes --maxmemory 256mb --maxmemory-policy allkeys-lru
         fi
@@ -290,9 +265,20 @@ services:
       interval: 30s
       timeout: 10s
       retries: 3
-    env_file:
-      - path: .env
-        required: true
+
+  redisinsight:
+    image: redislabs/redisinsight:latest
+    container_name: redisinsight
+    networks: ['n8n-network']
+    restart: unless-stopped
+    ports:
+      - "8001:8001"
+      - "5430:5430"
+    volumes:
+      - ./volumes/redisinsight:/db
+    depends_on:
+      redis:
+        condition: service_healthy
 
   mongodb:
     image: mongo:7
@@ -302,8 +288,8 @@ services:
     ports:
       - "27017:27017"
     environment:
-      - MONGO_INITDB_ROOT_USERNAME=${MONGODB_USERNAME}
-      - MONGO_INITDB_ROOT_PASSWORD=${MONGODB_PASSWORD}
+      - MONGO_INITDB_ROOT_USERNAME=${COMMON_USERNAME}
+      - MONGO_INITDB_ROOT_PASSWORD=${COMMON_PASSWORD}
     volumes:
       - mongodb_storage:/data/db
     healthcheck:
@@ -311,9 +297,6 @@ services:
       interval: 30s
       timeout: 10s
       retries: 3
-    env_file:
-      - path: .env
-        required: true
 
   # MongoDB Express for MongoDB GUI
   mongo-express:
@@ -324,262 +307,12 @@ services:
     ports:
       - "8081:8081"
     environment:
-      - ME_CONFIG_MONGODB_ADMINUSERNAME=${MONGODB_USERNAME}
-      - ME_CONFIG_MONGODB_ADMINPASSWORD=${MONGODB_PASSWORD}
-      - ME_CONFIG_MONGODB_URL=mongodb://${MONGODB_USERNAME}:${MONGODB_PASSWORD}@mongodb:27017/
-      - ME_CONFIG_BASICAUTH_USERNAME=${MONGO_EXPRESS_USER}
-      - ME_CONFIG_BASICAUTH_PASSWORD=${MONGO_EXPRESS_PASSWORD}
+      - ME_CONFIG_MONGODB_ADMINUSERNAME=${COMMON_USERNAME}
+      - ME_CONFIG_MONGODB_ADMINPASSWORD=${COMMON_PASSWORD}
+      - ME_CONFIG_MONGODB_URL=mongodb://${COMMON_USERNAME}:${COMMON_PASSWORD}@mongodb:27017/
+      - ME_CONFIG_BASICAUTH_USERNAME=${COMMON_USERNAME}
+      - ME_CONFIG_BASICAUTH_PASSWORD=${COMMON_PASSWORD}
     depends_on:
       mongodb:
         condition: service_healthy
 
-  # PostgreSQL Backup
-  postgres-backup:
-    image: postgres:16-alpine
-    container_name: postgres-backup
-    networks: ['n8n-network']
-    volumes:
-      - postgres_storage:/var/lib/postgresql/data
-      - ./backups/postgres:/backups
-    environment:
-      - POSTGRES_DB=${POSTGRES_DATABASE}
-      - POSTGRES_USER=${POSTGRES_USERNAME}
-      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
-    command: >
-      sh -c "
-        mkdir -p /backups &&
-        pg_dump -h postgres -U ${POSTGRES_USERNAME} -d ${POSTGRES_DATABASE} > /backups/postgres_backup_$(date +%Y%m%d_%H%M%S).sql &&
-        echo 'PostgreSQL backup completed'
-      "
-    depends_on:
-      postgres:
-        condition: service_healthy
-    profiles: ["backup"]
-
-  # PostgreSQL Restore
-  postgres-restore:
-    image: postgres:16-alpine
-    container_name: postgres-restore
-    networks: ['n8n-network']
-    volumes:
-      - postgres_storage:/var/lib/postgresql/data
-      - ./backups/postgres:/backups
-    environment:
-      - POSTGRES_DB=${POSTGRES_DATABASE}
-      - POSTGRES_USER=${POSTGRES_USERNAME}
-      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
-      - BACKUP_FILE=${BACKUP_FILE:-latest}
-    command: >
-      sh -c "
-        if [ \"${BACKUP_FILE}\" = \"latest\" ]; then
-          BACKUP_FILE=$(ls -t /backups/*.sql | head -1)
-        else
-          BACKUP_FILE=/backups/${BACKUP_FILE}
-        fi &&
-        echo \"Restoring from: $${BACKUP_FILE}\" &&
-        psql -h postgres -U ${POSTGRES_USERNAME} -d ${POSTGRES_DATABASE} < $${BACKUP_FILE} &&
-        echo 'PostgreSQL restore completed'
-      "
-    depends_on:
-      postgres:
-        condition: service_healthy
-    profiles: ["restore"]
-
-  # Neo4j Backup
-  neo4j-backup:
-    image: neo4j:5.13-community
-    container_name: neo4j-backup
-    networks: ['n8n-network']
-    volumes:
-      - neo4j_storage:/data
-      - ./backups/neo4j:/backups
-    environment:
-      - NEO4J_PASSWORD=${NEO4J_PASSWORD}
-    command: >
-      sh -c "
-        mkdir -p /backups &&
-        cypher-shell -u neo4j -p ${NEO4J_PASSWORD} -a bolt://neo4j:7687 
-        'CALL apoc.export.cypher.all(\"/backups/neo4j_backup_$(date +%Y%m%d_%H%M%S).cypher\", {})' &&
-        echo 'Neo4j backup completed'
-      "
-    depends_on:
-      neo4j:
-        condition: service_healthy
-    profiles: ["backup"]
-
-  # Neo4j Restore
-  neo4j-restore:
-    image: neo4j:5.13-community
-    container_name: neo4j-restore
-    networks: ['n8n-network']
-    volumes:
-      - neo4j_storage:/data
-      - ./backups/neo4j:/backups
-    environment:
-      - NEO4J_PASSWORD=${NEO4J_PASSWORD}
-      - BACKUP_FILE=${BACKUP_FILE:-latest}
-    command: >
-      sh -c "
-        if [ \"${BACKUP_FILE}\" = \"latest\" ]; then
-          BACKUP_FILE=$(ls -t /backups/*.cypher | head -1)
-        else
-          BACKUP_FILE=/backups/${BACKUP_FILE}
-        fi &&
-        echo \"Restoring from: $${BACKUP_FILE}\" &&
-        cypher-shell -u neo4j -p ${NEO4J_PASSWORD} -a bolt://neo4j:7687 -f $${BACKUP_FILE} &&
-        echo 'Neo4j restore completed'
-      "
-    depends_on:
-      neo4j:
-        condition: service_healthy
-    profiles: ["restore"]
-
-  # Redis Backup
-  redis-backup:
-    image: redis:7-alpine
-    container_name: redis-backup
-    networks: ['n8n-network']
-    volumes:
-      - redis_storage:/data
-      - ./backups/redis:/backups
-    environment:
-      - REDIS_PASSWORD=${REDIS_PASSWORD}
-    command: >
-      sh -c "
-        mkdir -p /backups &&
-        if [ -n \"${REDIS_PASSWORD}\" ]; then
-          redis-cli -h redis -a ${REDIS_PASSWORD} BGSAVE
-        else
-          redis-cli -h redis BGSAVE
-        fi &&
-        sleep 5 &&
-        cp /data/dump.rdb /backups/redis_backup_$(date +%Y%m%d_%H%M%S).rdb &&
-        echo 'Redis backup completed'
-      "
-    depends_on:
-      redis:
-        condition: service_healthy
-    profiles: ["backup"]
-
-  # Redis Restore
-  redis-restore:
-    image: redis:7-alpine
-    container_name: redis-restore
-    networks: ['n8n-network']
-    volumes:
-      - redis_storage:/data
-      - ./backups/redis:/backups
-    environment:
-      - BACKUP_FILE=${BACKUP_FILE:-latest}
-      - REDIS_PASSWORD=${REDIS_PASSWORD}
-    command: >
-      sh -c "
-        if [ \"${BACKUP_FILE}\" = \"latest\" ]; then
-          BACKUP_FILE=$(ls -t /backups/*.rdb | head -1)
-        else
-          BACKUP_FILE=/backups/${BACKUP_FILE}
-        fi &&
-        echo \"Restoring from: $${BACKUP_FILE}\" &&
-        if [ -n \"${REDIS_PASSWORD}\" ]; then
-          redis-cli -h redis -a ${REDIS_PASSWORD} SHUTDOWN
-        else
-          redis-cli -h redis SHUTDOWN
-        fi &&
-        sleep 2 &&
-        cp $${BACKUP_FILE} /data/dump.rdb &&
-        echo 'Redis restore completed. Please restart Redis service.'
-      "
-    depends_on:
-      redis:
-        condition: service_healthy
-    profiles: ["restore"]
-
-  # MongoDB Backup
-  mongodb-backup:
-    image: mongo:7
-    container_name: mongodb-backup
-    networks: ['n8n-network']
-    volumes:
-      - mongodb_storage:/data/db
-      - ./backups/mongodb:/backups
-    environment:
-      - MONGODB_USERNAME=${MONGODB_USERNAME}
-      - MONGODB_PASSWORD=${MONGODB_PASSWORD}
-    command: >
-      sh -c "
-        mkdir -p /backups &&
-        mongodump --host mongodb:27017 --username ${MONGODB_USERNAME} --password ${MONGODB_PASSWORD} --authenticationDatabase admin --out /backups/mongodb_backup_$(date +%Y%m%d_%H%M%S) &&
-        echo 'MongoDB backup completed'
-      "
-    depends_on:
-      mongodb:
-        condition: service_healthy
-    profiles: ["backup"]
-
-  # MongoDB Restore
-  mongodb-restore:
-    image: mongo:7
-    container_name: mongodb-restore
-    networks: ['n8n-network']
-    volumes:
-      - mongodb_storage:/data/db
-      - ./backups/mongodb:/backups
-    environment:
-      - MONGODB_USERNAME=${MONGODB_USERNAME}
-      - MONGODB_PASSWORD=${MONGODB_PASSWORD}
-      - BACKUP_DIR=${BACKUP_DIR:-latest}
-    command: >
-      sh -c "
-        if [ \"${BACKUP_DIR}\" = \"latest\" ]; then
-          BACKUP_DIR=$(ls -td /backups/mongodb_backup_* | head -1)
-        else
-          BACKUP_DIR=/backups/${BACKUP_DIR}
-        fi &&
-        echo \"Restoring from: $${BACKUP_DIR}\" &&
-        mongorestore --host mongodb:27017 --username ${MONGODB_USERNAME} --password ${MONGODB_PASSWORD} --authenticationDatabase admin --drop $${BACKUP_DIR} &&
-        echo 'MongoDB restore completed'
-      "
-    depends_on:
-      mongodb:
-        condition: service_healthy
-    profiles: ["restore"]
-
-  # Milvus Backup
-  milvus-backup:
-    image: milvusdb/milvus:v2.4.4
-    container_name: milvus-backup
-    networks: ['n8n-network']
-    volumes:
-      - milvus_storage:/var/lib/milvus
-      - ./backups/milvus:/backups
-    environment:
-      - ETCD_ENDPOINTS=etcd:2379
-      - MINIO_ADDRESS=minio:9000
-      - MINIO_ACCESS_KEY=${MINIO_ACCESS_KEY:-minioadmin}
-      - MINIO_SECRET_KEY=${MINIO_SECRET_KEY:-minioadmin}
-    command: >
-      sh -c "
-        mkdir -p /backups &&
-        cp -r /var/lib/milvus/* /backups/milvus_backup_$(date +%Y%m%d_%H%M%S)/ &&
-        echo 'Milvus backup completed'
-      "
-    depends_on:
-      milvus:
-        condition: service_healthy
-    profiles: ["backup"]
-
-  # Complete backup service (all databases)
-  full-backup:
-    image: alpine:latest
-    container_name: full-backup
-    networks: ['n8n-network']
-    volumes:
-      - ./backups:/backups
-    command: >
-      sh -c "
-        echo 'Starting full backup...' &&
-        mkdir -p /backups/full_backup_$(date +%Y%m%d_%H%M%S) &&
-        echo 'Full backup directory created' &&
-        echo 'Please run individual backup services with: docker compose --profile backup up'
-      "
-    profiles: ["backup"]

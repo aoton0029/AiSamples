@@ -6,7 +6,7 @@ self-hosted-ai-starter-kit/
 *.msi
 *.tar.gz
 *.jar
-project/dev/neo4j/volumes/*
+project/dev/n8n/volumes/*
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
